@@ -161,9 +161,9 @@
 <h3 id="1-ElasticSearch源码下载"><a href="#1-ElasticSearch源码下载" class="headerlink" title="1 ElasticSearch源码下载"></a>1 ElasticSearch源码下载</h3><p>ElasticSearch已经托管在github上，地址为：</p>
 <p><a href="https://github.com/elastic/elasticsearch" target="_blank" rel="noopener">https://github.com/elastic/elasticsearch</a></p>
 <p>然后选择相应的版本下载：</p>
-<p><img src="../images/es源码git下载.png" alt="es源码git下载"></p>
+<p><img src="https://github.com/GreZhang/GreZhang.github.io/raw/master/images/es/es%E6%BA%90%E7%A0%81git%E4%B8%8B%E8%BD%BD.png" alt="es源码git下载"></p>
 <p>然后解压：</p>
-<p><img src="../images/es解压整体目录结构.png" alt="es解压整体目录结构"></p>
+<p><img src="https://github.com/GreZhang/GreZhang.github.io/raw/master/images/es/es%E8%A7%A3%E5%8E%8B%E6%95%B4%E4%BD%93%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84.png" alt="es解压整体目录结构"></p>
 <h3 id="2-安装gradle环境"><a href="#2-安装gradle环境" class="headerlink" title="2 安装gradle环境"></a>2 安装gradle环境</h3><p>打开{ES_HOME}\buildSrc_\build.gradle,发现需要gradle3.3的版本</p>
 <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (GradleVersion.current() &lt; GradleVersion.version(<span class="string">'3.3'</span>)) &#123;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> GradleException(<span class="string">'Gradle 3.3+ is required to build elasticsearch'</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>去gradle下载gradle3.3的版本，最好跟文件需要的版本一致。</p>
@@ -187,7 +187,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/19/elasticsearch源码环境准备/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/06/23/elasticsearch源码环境准备/">展开全文 >></a>
         </p>
       
 
