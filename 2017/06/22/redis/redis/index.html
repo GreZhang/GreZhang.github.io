@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="面试,Redis," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Gre的博客" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="1、Redis为什么单线程的，能说说它的原理吗Redis使用了单线程架构和I/O多路复用模型来实现高性能的内存数据库服务。Redis使用了单线程架构，预防了多线程可能产生的竞争问题，但是也会引入另外的问题。Redis单线程架构导致无法充分利用CPU多核特性，通常的做法是在一台机器上部署多个Redis实例。 那么Redis使用单线程模型，为什么还那么快： 第一，纯内存访问，Redis将所有数据放在内">
+<meta name="keywords" content="面试,Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis面试题整理">
+<meta property="og:url" content="https://grezhang.github.io/2017/06/22/redis/redis/index.html">
+<meta property="og:site_name" content="Gre的博客">
+<meta property="og:description" content="1、Redis为什么单线程的，能说说它的原理吗Redis使用了单线程架构和I/O多路复用模型来实现高性能的内存数据库服务。Redis使用了单线程架构，预防了多线程可能产生的竞争问题，但是也会引入另外的问题。Redis单线程架构导致无法充分利用CPU多核特性，通常的做法是在一台机器上部署多个Redis实例。 那么Redis使用单线程模型，为什么还那么快： 第一，纯内存访问，Redis将所有数据放在内">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-07-02T01:58:29.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis面试题整理">
+<meta name="twitter:description" content="1、Redis为什么单线程的，能说说它的原理吗Redis使用了单线程架构和I/O多路复用模型来实现高性能的内存数据库服务。Redis使用了单线程架构，预防了多线程可能产生的竞争问题，但是也会引入另外的问题。Redis单线程架构导致无法充分利用CPU多核特性，通常的做法是在一台机器上部署多个Redis实例。 那么Redis使用单线程模型，为什么还那么快： 第一，纯内存访问，Redis将所有数据放在内">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '123456',
+      author: 'Tenken'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://grezhang.github.io/2017/06/22/redis/redis/"/>
+
+
+
+
+
+  <title>Redis面试题整理 | Gre的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Gre的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">风骚的程序员</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://grezhang.github.io/2017/06/22/redis/redis/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gre World">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Gre的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis面试题整理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-22T12:12:56+08:00">
+                2017-06-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Redis面试/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis面试</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="1、Redis为什么单线程的，能说说它的原理吗"><a href="#1、Redis为什么单线程的，能说说它的原理吗" class="headerlink" title="1、Redis为什么单线程的，能说说它的原理吗"></a>1、Redis为什么单线程的，能说说它的原理吗</h3><p>Redis使用了单线程架构和I/O多路复用模型来实现高性能的内存数据库服务。Redis使用了单线程架构，预防了多线程可能产生的竞争问题，但是也会引入另外的问题。Redis单线程架构导致无法充分利用CPU多核特性，通常的做法是在一台机器上部署多个Redis实例。</p>
+<p>那么Redis使用单线程模型，为什么还那么快：</p>
+<p>第一，纯内存访问，Redis将所有数据放在内存中，内存的响应时长大约为100纳秒，这是Redis达到每秒万级别访问的重要基础。<br>第二，非阻塞I/O，Redis使用epoll作为I/O多路复用技术的实现，再加上Redis自身的事件处理模型将epoll中的连接、读写、关闭都转换为事件，不在网络I/O上浪费过多的时间。</p>
+<p>第三，单线程避免了线程切换和竞态产生的消耗。</p>
+<h3 id="2、mySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据"><a href="#2、mySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据" class="headerlink" title="2、mySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据"></a>2、mySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据</h3><p>Redis 内存数据集大小上升到一定大小的时候，就会施行数据淘汰策略。redis 提供 6种数据淘汰策略：</p>
+<ul>
+<li>volatile-lru：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰</li>
+<li>volatile-ttl：从已设置过期时间的数据集（server.db[i].expires）中挑选将要过期的数据淘汰</li>
+<li>volatile-random：从已设置过期时间的数据集（server.db[i].expires）中任意选择数据淘汰</li>
+<li>allkeys-lru：从数据集（server.db[i].dict）中挑选最近最少使用的数据淘汰</li>
+<li>allkeys-random：从数据集（server.db[i].dict）中任意选择数据淘汰</li>
+<li>no-enviction（驱逐）：禁止驱逐数据</li>
+</ul>
+<h3 id="3、缓存穿透可以介绍⼀一下么？你认为应该如何解决这个问题"><a href="#3、缓存穿透可以介绍⼀一下么？你认为应该如何解决这个问题" class="headerlink" title="3、缓存穿透可以介绍⼀一下么？你认为应该如何解决这个问题"></a>3、缓存穿透可以介绍⼀一下么？你认为应该如何解决这个问题</h3><p>缓存穿透是指用户查询数据，在数据库没有，自然在缓存中也不会有。这样就导致用户查询的时候，在缓存中找不到，每次都要去数据库中查询。</p>
+<p>解决思路：</p>
+<p>1，如果查询<a href="http://cpro.baidu.com/cpro/ui/uijs.php?adclass=0&amp;app_id=0&amp;c=news&amp;cf=1001&amp;ch=0&amp;di=128&amp;fv=17&amp;is_app=0&amp;jk=9d81f77002e20c6d&amp;k=%CA%FD%BE%DD%BF%E2&amp;k0=%CA%FD%BE%DD%BF%E2&amp;kdi0=0&amp;luki=7&amp;mcpm=0&amp;n=10&amp;p=baidu&amp;q=smileking_cpr&amp;rb=0&amp;rs=1&amp;seller_id=1&amp;sid=6d0ce20270f7819d&amp;ssp2=1&amp;stid=9&amp;t=tpclicked3_hc&amp;td=1682280&amp;tu=u1682280&amp;u=http%3A%2F%2Fwww.th7.cn%2Fdb%2Fnosql%2F201510%2F136276.shtml&amp;urlid=0" target="_blank" rel="noopener">数据库</a>也为空，直接设置一个默认值存放到缓存，这样第二次到缓冲中获取就有值了，而不会继续访问数据库，这种办法最简单粗暴。</p>
+<p>2，根据缓存数据Key的规则。例如我们公司是做机顶盒的，缓存数据以Mac为Key，Mac是有规则，如果不符合规则就过滤掉，这样可以过滤一部分查询。在做缓存规划的时候，Key有一定规则的话，可以采取这种办法。这种办法只能缓解一部分的压力，过滤和系统无关的查询，但是无法根治。</p>
+<p>3，采用布隆<a href="http://cpro.baidu.com/cpro/ui/uijs.php?adclass=0&amp;app_id=0&amp;c=news&amp;cf=1001&amp;ch=0&amp;di=128&amp;fv=17&amp;is_app=0&amp;jk=9d81f77002e20c6d&amp;k=%B9%FD%C2%CB%C6%F7&amp;k0=%B9%FD%C2%CB%C6%F7&amp;kdi0=0&amp;luki=6&amp;mcpm=0&amp;n=10&amp;p=baidu&amp;q=smileking_cpr&amp;rb=0&amp;rs=1&amp;seller_id=1&amp;sid=6d0ce20270f7819d&amp;ssp2=1&amp;stid=9&amp;t=tpclicked3_hc&amp;td=1682280&amp;tu=u1682280&amp;u=http%3A%2F%2Fwww.th7.cn%2Fdb%2Fnosql%2F201510%2F136276.shtml&amp;urlid=0" target="_blank" rel="noopener">过滤器</a>，将所有可能存在的数据哈希到一个足够大的BitSet中，不存在的数据将会被拦截掉，从而避免了对<a href="http://cpro.baidu.com/cpro/ui/uijs.php?adclass=0&amp;app_id=0&amp;c=news&amp;cf=1001&amp;ch=0&amp;di=128&amp;fv=17&amp;is_app=0&amp;jk=9d81f77002e20c6d&amp;k=%B5%D7%B2%E3&amp;k0=%B5%D7%B2%E3&amp;kdi0=0&amp;luki=2&amp;mcpm=0&amp;n=10&amp;p=baidu&amp;q=smileking_cpr&amp;rb=0&amp;rs=1&amp;seller_id=1&amp;sid=6d0ce20270f7819d&amp;ssp2=1&amp;stid=9&amp;t=tpclicked3_hc&amp;td=1682280&amp;tu=u1682280&amp;u=http%3A%2F%2Fwww.th7.cn%2Fdb%2Fnosql%2F201510%2F136276.shtml&amp;urlid=0" target="_blank" rel="noopener">底层</a>存储系统的查询压力。关于布隆<a href="http://cpro.baidu.com/cpro/ui/uijs.php?adclass=0&amp;app_id=0&amp;c=news&amp;cf=1001&amp;ch=0&amp;di=128&amp;fv=17&amp;is_app=0&amp;jk=9d81f77002e20c6d&amp;k=%B9%FD%C2%CB%C6%F7&amp;k0=%B9%FD%C2%CB%C6%F7&amp;kdi0=0&amp;luki=6&amp;mcpm=0&amp;n=10&amp;p=baidu&amp;q=smileking_cpr&amp;rb=0&amp;rs=1&amp;seller_id=1&amp;sid=6d0ce20270f7819d&amp;ssp2=1&amp;stid=9&amp;t=tpclicked3_hc&amp;td=1682280&amp;tu=u1682280&amp;u=http%3A%2F%2Fwww.th7.cn%2Fdb%2Fnosql%2F201510%2F136276.shtml&amp;urlid=0" target="_blank" rel="noopener">过滤器</a>，详情查看：基于BitSet的布隆过滤器(Bloom Filter) </p>
+<p>大并发的缓存穿透会导致缓存雪崩。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/面试/" rel="tag"># 面试</a>
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/22/dubbo/分布式服务治理-dubbo（一）入门/" rel="next" title="分布式服务治理-dubbo（一）入门">
+                <i class="fa fa-chevron-left"></i> 分布式服务治理-dubbo（一）入门
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/24/dubbo/分布式服务治理-dubbo（二）常用配置使用分析/" rel="prev" title="分布式服务治理-dubbo（二）常用配置分析">
+                分布式服务治理-dubbo（二）常用配置分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="Gre World" />
+            
+              <p class="site-author-name" itemprop="name">Gre World</p>
+              <p class="site-description motion-element" itemprop="description">原来我的代码竟然如此风骚</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、Redis为什么单线程的，能说说它的原理吗"><span class="nav-number">1.</span> <span class="nav-text">1、Redis为什么单线程的，能说说它的原理吗</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、mySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据"><span class="nav-number">2.</span> <span class="nav-text">2、mySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、缓存穿透可以介绍⼀一下么？你认为应该如何解决这个问题"><span class="nav-number">3.</span> <span class="nav-text">3、缓存穿透可以介绍⼀一下么？你认为应该如何解决这个问题</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gre World</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

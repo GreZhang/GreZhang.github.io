@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="elasticsearch源码分析,elasticsearch," />
+  <meta name="keywords" content="elasticsearch,elasticsearch源码分析," />
 
 
 
@@ -82,10 +82,10 @@
 
 
 <meta name="description" content="一、源码主要模块我下载的Elasticsearch的源码版本为5.6.4  从上图来看：Elasticsearch主要包含以下几个模块 distribution：elasticsearch的打包发行相关，将elasticsearch打成各种发行包（zip，deb，rpm，tar）的模块。具体用法如是，在相应的发行版本模块下执行publishToMavenLocal这个Task，如果执行成功的话就会">
-<meta name="keywords" content="elasticsearch源码分析,elasticsearch">
+<meta name="keywords" content="elasticsearch,elasticsearch源码分析">
 <meta property="og:type" content="article">
 <meta property="og:title" content="elasticsearch源码分析(一)--整体架构">
-<meta property="og:url" content="https://grezhang.github.io/2018/05/23/elasticsearch源码分析(一)--整体架构/index.html">
+<meta property="og:url" content="https://grezhang.github.io/2018/05/23/ElasticSearch/elasticsearch源码分析(一)--整体架构/index.html">
 <meta property="og:site_name" content="Gre的博客">
 <meta property="og:description" content="一、源码主要模块我下载的Elasticsearch的源码版本为5.6.4  从上图来看：Elasticsearch主要包含以下几个模块 distribution：elasticsearch的打包发行相关，将elasticsearch打成各种发行包（zip，deb，rpm，tar）的模块。具体用法如是，在相应的发行版本模块下执行publishToMavenLocal这个Task，如果执行成功的话就会">
 <meta property="og:locale" content="zh-Hans">
@@ -98,7 +98,7 @@
 <meta property="og:image" content="https://github.com/Zhanggdong/Zhanggdong.github.io/raw/master/images/es/modules%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84.png">
 <meta property="og:image" content="https://github.com/Zhanggdong/Zhanggdong.github.io/raw/master/images/es/plugings%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84.png">
 <meta property="og:image" content="https://github.com/Zhanggdong/Zhanggdong.github.io/raw/master/images/es/ES%E6%9E%B6%E6%9E%84%E5%9B%BE.png">
-<meta property="og:updated_time" content="2018-06-25T13:05:53.219Z">
+<meta property="og:updated_time" content="2018-06-25T13:05:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="elasticsearch源码分析(一)--整体架构">
 <meta name="twitter:description" content="一、源码主要模块我下载的Elasticsearch的源码版本为5.6.4  从上图来看：Elasticsearch主要包含以下几个模块 distribution：elasticsearch的打包发行相关，将elasticsearch打成各种发行包（zip，deb，rpm，tar）的模块。具体用法如是，在相应的发行版本模块下执行publishToMavenLocal这个Task，如果执行成功的话就会">
@@ -132,7 +132,7 @@
 
 
 
-  <link rel="canonical" href="https://grezhang.github.io/2018/05/23/elasticsearch源码分析(一)--整体架构/"/>
+  <link rel="canonical" href="https://grezhang.github.io/2018/05/23/ElasticSearch/elasticsearch源码分析(一)--整体架构/"/>
 
 
 
@@ -285,7 +285,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://grezhang.github.io/2018/05/23/elasticsearch源码分析(一)--整体架构/">
+    <link itemprop="mainEntityOfPage" href="https://grezhang.github.io/2018/05/23/ElasticSearch/elasticsearch源码分析(一)--整体架构/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Gre World">
@@ -415,9 +415,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/elasticsearch源码分析/" rel="tag"># elasticsearch源码分析</a>
-          
             <a href="/tags/elasticsearch/" rel="tag"># elasticsearch</a>
+          
+            <a href="/tags/elasticsearch源码分析/" rel="tag"># elasticsearch源码分析</a>
           
         </div>
       
@@ -430,7 +430,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/05/22/elasticsearch源码环境准备/" rel="next" title="elasticsearch源码环境准备">
+              <a href="/2018/05/22/ElasticSearch/elasticsearch源码环境准备/" rel="next" title="elasticsearch源码环境准备">
                 <i class="fa fa-chevron-left"></i> elasticsearch源码环境准备
               </a>
             
@@ -440,7 +440,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/05/25/elasticsearch源码分析(二)--启动/" rel="prev" title="elasticsearch源码分析(二)--启动">
+              <a href="/2018/05/25/ElasticSearch/elasticsearch源码分析(二)--启动/" rel="prev" title="elasticsearch源码分析(二)--启动">
                 elasticsearch源码分析(二)--启动 <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -523,7 +523,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -534,7 +534,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -545,7 +545,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

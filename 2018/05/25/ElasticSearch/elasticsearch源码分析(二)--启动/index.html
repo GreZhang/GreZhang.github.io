@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="elasticsearch,源码分析," />
 
 
 
@@ -82,9 +82,10 @@
 
 
 <meta name="description" content="由于最近半年来一直在使用Elasticsearch来做全文检索和ELK统一日志工作，对于ES还是觉得需要细细研究，才能感受到它的魅力，才能有所提高。 我们先提出几个问题：  启动入口在哪个类？ 启动需要做哪些初始化工作？ 如何加载配置文件？  一、怎么找启动入口在哪个类看源码最头疼的事情就是找入口，相信很多刚开始也是这样，面对那么多模块中的类，很难找到一个切入点，我刚开始看也是这样，对于这样的问题">
+<meta name="keywords" content="elasticsearch,源码分析">
 <meta property="og:type" content="article">
 <meta property="og:title" content="elasticsearch源码分析(二)--启动">
-<meta property="og:url" content="https://grezhang.github.io/2018/05/25/elasticsearch源码分析(二)--启动/index.html">
+<meta property="og:url" content="https://grezhang.github.io/2018/05/25/ElasticSearch/elasticsearch源码分析(二)--启动/index.html">
 <meta property="og:site_name" content="Gre的博客">
 <meta property="og:description" content="由于最近半年来一直在使用Elasticsearch来做全文检索和ELK统一日志工作，对于ES还是觉得需要细细研究，才能感受到它的魅力，才能有所提高。 我们先提出几个问题：  启动入口在哪个类？ 启动需要做哪些初始化工作？ 如何加载配置文件？  一、怎么找启动入口在哪个类看源码最头疼的事情就是找入口，相信很多刚开始也是这样，面对那么多模块中的类，很难找到一个切入点，我刚开始看也是这样，对于这样的问题">
 <meta property="og:locale" content="zh-Hans">
@@ -95,7 +96,7 @@
 <meta property="og:image" content="https://github.com/Zhanggdong/Zhanggdong.github.io/raw/master/images/es/Node%E5%AE%9A%E4%B9%891.png">
 <meta property="og:image" content="https://github.com/Zhanggdong/Zhanggdong.github.io/raw/master/images/es/Node%E5%AE%9A%E4%B9%89.png">
 <meta property="og:image" content="https://github.com/Zhanggdong/Zhanggdong.github.io/raw/master/images/es/Elasticsearch%E6%BA%90%E7%A0%81%E5%90%AF%E5%8A%A8%E6%97%B6%E5%BA%8F%E5%9B%BE.png">
-<meta property="og:updated_time" content="2018-06-25T13:06:05.284Z">
+<meta property="og:updated_time" content="2018-07-02T02:01:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="elasticsearch源码分析(二)--启动">
 <meta name="twitter:description" content="由于最近半年来一直在使用Elasticsearch来做全文检索和ELK统一日志工作，对于ES还是觉得需要细细研究，才能感受到它的魅力，才能有所提高。 我们先提出几个问题：  启动入口在哪个类？ 启动需要做哪些初始化工作？ 如何加载配置文件？  一、怎么找启动入口在哪个类看源码最头疼的事情就是找入口，相信很多刚开始也是这样，面对那么多模块中的类，很难找到一个切入点，我刚开始看也是这样，对于这样的问题">
@@ -129,7 +130,7 @@
 
 
 
-  <link rel="canonical" href="https://grezhang.github.io/2018/05/25/elasticsearch源码分析(二)--启动/"/>
+  <link rel="canonical" href="https://grezhang.github.io/2018/05/25/ElasticSearch/elasticsearch源码分析(二)--启动/"/>
 
 
 
@@ -282,7 +283,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://grezhang.github.io/2018/05/25/elasticsearch源码分析(二)--启动/">
+    <link itemprop="mainEntityOfPage" href="https://grezhang.github.io/2018/05/25/ElasticSearch/elasticsearch源码分析(二)--启动/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Gre World">
@@ -311,7 +312,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-25T12:12:57+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-25T12:10:57+08:00">
                 2018-05-25
               </time>
             
@@ -512,6 +513,8 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPool</span><span class="params">(<span class="keyword">final</span> Settings settings, <span class="keyword">final</span> ExecutorBuilder&lt;?&gt;... customBuilders)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(settings);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">assert</span> Node.NODE_NAME_SETTING.exists(settings);</span><br><span class="line">        <span class="comment">// 将构造好的线程池添加到HashMap中，key是线程池的名称，value是ExecutorBuilder</span></span><br><span class="line">        <span class="comment">// 每一个线程都是通过ExecutorBuilder来构造</span></span><br><span class="line">        <span class="keyword">final</span> Map&lt;String, ExecutorBuilder&gt; builders = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> availableProcessors = EsExecutors.boundedNumberOfProcessors(settings);</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> halfProcMaxAt5 = halfNumberOfProcessorsMaxFive(availableProcessors);</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> halfProcMaxAt10 = halfNumberOfProcessorsMaxTen(availableProcessors);</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> genericThreadPoolMax = boundedBy(<span class="number">4</span> * availableProcessors, <span class="number">128</span>, <span class="number">512</span>);</span><br><span class="line">        builders.put(Names.GENERIC, <span class="keyword">new</span> ScalingExecutorBuilder(Names.GENERIC, <span class="number">4</span>, genericThreadPoolMax, TimeValue.timeValueSeconds(<span class="number">30</span>)));</span><br><span class="line">        builders.put(Names.INDEX, <span class="keyword">new</span> FixedExecutorBuilder(settings, Names.INDEX, availableProcessors, <span class="number">200</span>));</span><br><span class="line">        builders.put(Names.BULK, <span class="keyword">new</span> FixedExecutorBuilder(settings, Names.BULK, availableProcessors, <span class="number">200</span>)); <span class="comment">// now that we reuse bulk for index/delete ops</span></span><br><span class="line">        builders.put(Names.GET, <span class="keyword">new</span> FixedExecutorBuilder(settings, Names.GET, availableProcessors, <span class="number">1000</span>));</span><br><span class="line">        builders.put(Names.SEARCH, <span class="keyword">new</span> FixedExecutorBuilder(settings, Names.SEARCH, searchThreadPoolSize(availableProcessors), <span class="number">1000</span>));</span><br><span class="line">        builders.put(Names.MANAGEMENT, <span class="keyword">new</span> ScalingExecutorBuilder(Names.MANAGEMENT, <span class="number">1</span>, <span class="number">5</span>, TimeValue.timeValueMinutes(<span class="number">5</span>)));</span><br><span class="line">        <span class="comment">// no queue as this means clients will need to handle rejections on listener queue even if the operation succeeded</span></span><br><span class="line">        <span class="comment">// the assumption here is that the listeners should be very lightweight on the listeners side</span></span><br><span class="line">        builders.put(Names.LISTENER, <span class="keyword">new</span> FixedExecutorBuilder(settings, Names.LISTENER, halfProcMaxAt10, -<span class="number">1</span>));</span><br><span class="line">        builders.put(Names.FLUSH, <span class="keyword">new</span> ScalingExecutorBuilder(Names.FLUSH, <span class="number">1</span>, halfProcMaxAt5, TimeValue.timeValueMinutes(<span class="number">5</span>)));</span><br><span class="line">        builders.put(Names.REFRESH, <span class="keyword">new</span> ScalingExecutorBuilder(Names.REFRESH, <span class="number">1</span>, halfProcMaxAt10, TimeValue.timeValueMinutes(<span class="number">5</span>)));</span><br><span class="line">        builders.put(Names.WARMER, <span class="keyword">new</span> ScalingExecutorBuilder(Names.WARMER, <span class="number">1</span>, halfProcMaxAt5, TimeValue.timeValueMinutes(<span class="number">5</span>)));</span><br><span class="line">        builders.put(Names.SNAPSHOT, <span class="keyword">new</span> ScalingExecutorBuilder(Names.SNAPSHOT, <span class="number">1</span>, halfProcMaxAt5, TimeValue.timeValueMinutes(<span class="number">5</span>)));</span><br><span class="line">        builders.put(Names.FETCH_SHARD_STARTED, <span class="keyword">new</span> ScalingExecutorBuilder(Names.FETCH_SHARD_STARTED, <span class="number">1</span>, <span class="number">2</span> * availableProcessors, TimeValue.timeValueMinutes(<span class="number">5</span>)));</span><br><span class="line">        builders.put(Names.FORCE_MERGE, <span class="keyword">new</span> FixedExecutorBuilder(settings, Names.FORCE_MERGE, <span class="number">1</span>, -<span class="number">1</span>));</span><br><span class="line">        builders.put(Names.FETCH_SHARD_STORE, <span class="keyword">new</span> ScalingExecutorBuilder(Names.FETCH_SHARD_STORE, <span class="number">1</span>, <span class="number">2</span> * availableProcessors, TimeValue.timeValueMinutes(<span class="number">5</span>)));</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">final</span> ExecutorBuilder&lt;?&gt; builder : customBuilders) &#123;</span><br><span class="line">            <span class="keyword">if</span> (builders.containsKey(builder.name())) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"builder with name ["</span> + builder.name() + <span class="string">"] already exists"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            builders.put(builder.name(), builder);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.builders = Collections.unmodifiableMap(builders);</span><br><span class="line"></span><br><span class="line">        threadContext = <span class="keyword">new</span> ThreadContext(settings);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> Map&lt;String, ExecutorHolder&gt; executors = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>) <span class="keyword">final</span> Map.Entry&lt;String, ExecutorBuilder&gt; entry : builders.entrySet()) &#123;</span><br><span class="line">            <span class="keyword">final</span> ExecutorBuilder.ExecutorSettings executorSettings = entry.getValue().getSettings(settings);</span><br><span class="line">            <span class="keyword">final</span> ExecutorHolder executorHolder = entry.getValue().build(executorSettings, threadContext);</span><br><span class="line">            <span class="keyword">if</span> (executors.containsKey(executorHolder.info.getName())) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"duplicate executors with name ["</span> + executorHolder.info.getName() + <span class="string">"] registered"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            logger.debug(<span class="string">"created thread pool: &#123;&#125;"</span>, entry.getValue().formatInfo(executorHolder.info));</span><br><span class="line">            executors.put(entry.getKey(), executorHolder);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        executors.put(Names.SAME, <span class="keyword">new</span> ExecutorHolder(DIRECT_EXECUTOR, <span class="keyword">new</span> Info(Names.SAME, ThreadPoolType.DIRECT)));</span><br><span class="line">        <span class="keyword">this</span>.executors = unmodifiableMap(executors);</span><br><span class="line">        <span class="comment">// 最后创建一个1线程的scheduler来执行定时任务</span></span><br><span class="line">        <span class="keyword">this</span>.scheduler = <span class="keyword">new</span> ScheduledThreadPoolExecutor(<span class="number">1</span>, EsExecutors.daemonThreadFactory(settings, <span class="string">"scheduler"</span>), <span class="keyword">new</span> EsAbortPolicy());</span><br><span class="line">        <span class="keyword">this</span>.scheduler.setExecuteExistingDelayedTasksAfterShutdownPolicy(<span class="keyword">false</span>);</span><br><span class="line">        <span class="keyword">this</span>.scheduler.setContinueExistingPeriodicTasksAfterShutdownPolicy(<span class="keyword">false</span>);</span><br><span class="line">        <span class="keyword">this</span>.scheduler.setRemoveOnCancelPolicy(<span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">        TimeValue estimatedTimeInterval = ESTIMATED_TIME_INTERVAL_SETTING.get(settings);</span><br><span class="line">        <span class="comment">// 最后创建一个执行timer的线程</span></span><br><span class="line">        <span class="keyword">this</span>.cachedTimeThread = <span class="keyword">new</span> CachedTimeThread(EsExecutors.threadName(settings, <span class="string">"[timer]"</span>), estimatedTimeInterval.millis());</span><br><span class="line">        <span class="keyword">this</span>.cachedTimeThread.start();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 <p>原来在ES的threadPool中，根据不同的类型分别分配了不同线程数的一个线程池，而executor由一个executorBuilder来提供，所以submit task的时候也需要指定不同的Name。最后创建一个1线程的scheduler来执行定时任务。最后创建一个执行timer的线程。</p>
 <p>再继续往下看Node的构造方法就会看到接下来会new 一堆的services和modules，这里就不一一过了，其共性就是都会绑定刚刚创建的threadPool，已经也会绑定必要的services，某些module本身具有后台线程的话，初始化完成需要调用<code>.start()</code>去启动这些后台线程。</p>
+<p>问题：</p>
+<p>32和Runtime.getRuntime().availableProcessors()中的最小值，也就是不能超过32，为什么会有这个限制呢？是因为在elasticsearch的github上有人提了个<a href="https://github.com/elastic/elasticsearch/issues/3478" target="_blank" rel="noopener">issues/3478</a>，当使用core很多的机器的时候（比如48core），会创建太多的内存从而导致OOM，所以设置了32的上限来避免太多线程给系统产生压力。</p>
 <ul>
 <li>初始化modules实例，通过Guice的Injector进行注入各个Module实例</li>
 </ul>
@@ -572,6 +575,14 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/elasticsearch/" rel="tag"># elasticsearch</a>
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+        </div>
+      
 
       
       
@@ -581,7 +592,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/05/23/elasticsearch源码分析(一)--整体架构/" rel="next" title="elasticsearch源码分析(一)--整体架构">
+              <a href="/2018/05/23/ElasticSearch/elasticsearch源码分析(一)--整体架构/" rel="next" title="elasticsearch源码分析(一)--整体架构">
                 <i class="fa fa-chevron-left"></i> elasticsearch源码分析(一)--整体架构
               </a>
             
@@ -591,7 +602,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/05/27/elasticsearch源码分析(三)--Discover模块/" rel="prev" title="elasticsearch源码分析(三)Discover模块">
+              <a href="/2018/05/27/ElasticSearch/elasticsearch源码分析(三)--Discover模块/" rel="prev" title="elasticsearch源码分析(三)Discover模块">
                 elasticsearch源码分析(三)Discover模块 <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -674,7 +685,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -685,7 +696,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -696,7 +707,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
