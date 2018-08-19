@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Spring Boot,微服务," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Gre的博客" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="IOC/DI我们说得很多，其实我们最应该关注的本质是生命周期。 Bean的生命周期实例化 -&amp;gt; Bean Class -&amp;gt; Bean Object 初始化前 -&amp;gt; Bean before/pre init()  org.springframework.beans.factory.config.BeanPostProcessor#postProcessBeforeInitializ">
+<meta name="keywords" content="Spring Boot,微服务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Boot之Spring MVC视图技术">
+<meta property="og:url" content="https://grezhang.github.io/2018/07/14/spring-boot/03spring boot之Spring MVC视图技术/index.html">
+<meta property="og:site_name" content="Gre的博客">
+<meta property="og:description" content="IOC/DI我们说得很多，其实我们最应该关注的本质是生命周期。 Bean的生命周期实例化 -&amp;gt; Bean Class -&amp;gt; Bean Object 初始化前 -&amp;gt; Bean before/pre init()  org.springframework.beans.factory.config.BeanPostProcessor#postProcessBeforeInitializ">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://github.com/GreZhang/GreZhang.github.io/raw/master/images/spring-boot/JSP%E8%A7%86%E5%9B%BE%E8%A7%A3%E6%9E%90%E5%99%A8%E7%B1%BB%E5%9B%BE.jpg">
+<meta property="og:image" content="https://github.com/GreZhang/GreZhang.github.io/raw/master/images/spring-boot/JSP%E6%B8%B2%E6%9F%93%E6%B5%81%E7%A8%8B.jpg">
+<meta property="og:image" content="https://github.com/GreZhang/GreZhang.github.io/raw/master/images/spring-boot/Velocity%E8%A7%86%E5%9B%BE%E8%A7%A3%E6%9E%90%E5%99%A8%E7%B1%BB%E5%9B%BE.jpg">
+<meta property="og:image" content="https://github.com/GreZhang/GreZhang.github.io/raw/master/images/spring-boot/%E8%A7%86%E5%9B%BE%E6%B8%B2%E6%9F%93%E6%B5%81%E7%A8%8B.jpg">
+<meta property="og:updated_time" content="2018-08-14T14:16:28.885Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring Boot之Spring MVC视图技术">
+<meta name="twitter:description" content="IOC/DI我们说得很多，其实我们最应该关注的本质是生命周期。 Bean的生命周期实例化 -&amp;gt; Bean Class -&amp;gt; Bean Object 初始化前 -&amp;gt; Bean before/pre init()  org.springframework.beans.factory.config.BeanPostProcessor#postProcessBeforeInitializ">
+<meta name="twitter:image" content="https://github.com/GreZhang/GreZhang.github.io/raw/master/images/spring-boot/JSP%E8%A7%86%E5%9B%BE%E8%A7%A3%E6%9E%90%E5%99%A8%E7%B1%BB%E5%9B%BE.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '123456',
+      author: 'Tenken'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://grezhang.github.io/2018/07/14/spring-boot/03spring boot之Spring MVC视图技术/"/>
+
+
+
+
+
+  <title>Spring Boot之Spring MVC视图技术 | Gre的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Gre的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">风骚的程序员</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://grezhang.github.io/2018/07/14/spring-boot/03spring boot之Spring MVC视图技术/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gre World">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Gre的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Spring Boot之Spring MVC视图技术</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-14T12:12:56+08:00">
+                2018-07-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+			
+				&nbsp; | &nbsp;
+				<span id="/2018/07/14/spring-boot/03spring boot之Spring MVC视图技术/"class="leancloud_visitors" data-flag-title="Spring Boot之Spring MVC视图技术">
+				&nbsp;阅读次数
+				</span>
+			
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring-Boot基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/07/14/spring-boot/03spring boot之Spring MVC视图技术/" class="leancloud_visitors" data-flag-title="Spring Boot之Spring MVC视图技术">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>IOC/DI我们说得很多，其实我们最应该关注的本质是生命周期。</p>
+<h1 id="Bean的生命周期"><a href="#Bean的生命周期" class="headerlink" title="Bean的生命周期"></a>Bean的生命周期</h1><p>实例化 -&gt; Bean Class -&gt; Bean Object</p>
+<p>初始化前 -&gt; Bean before/pre init()</p>
+<ul>
+<li><code>org.springframework.beans.factory.config.BeanPostProcessor#postProcessBeforeInitialization</code></li>
+</ul>
+<p>初始化 -&gt; init()</p>
+<ul>
+<li><code>org.springframework.beans.factory.InitializingBean#afterPropertiesSet()</code></li>
+</ul>
+<p>初始化后</p>
+<ul>
+<li><code>org.springframework.beans.factory.config.BeanPostProcessor#postProcessAfterInitialization()</code></li>
+</ul>
+<p>销毁</p>
+<ul>
+<li><code>org.springframework.beans.factory.DisposableBean#destroy()</code></li>
+</ul>
+<h1 id="Velocity视图技术"><a href="#Velocity视图技术" class="headerlink" title="Velocity视图技术"></a>Velocity视图技术</h1><p>常用的视图技术有</p>
+<ul>
+<li>JSP</li>
+<li>Velocity</li>
+<li>Thymeleaf</li>
+<li>Freemark</li>
+</ul>
+<p>这些技术都会有</p>
+<ul>
+<li>逻辑处理 if else</li>
+<li>迭代处理 for each</li>
+<li>赋值  &lt;c:set / &lt;div th:with=”${}”   # set($var =”abc”)</li>
+</ul>
+<h2 id="Velocity与JSP对比"><a href="#Velocity与JSP对比" class="headerlink" title="Velocity与JSP对比"></a>Velocity与JSP对比</h2><p>与JSP相比较，Velocity完全避免了在页面中写java代码，从而破坏整个项目的分层结构。</p>
+<ol>
+<li>JSP视图解析器：</li>
+</ol>
+<ul>
+<li><code>InternalResourceViewResolver</code><ul>
+<li><code>UrlBasedViewResolver</code><ul>
+<li><code>AbstractCachingViewResolver</code><ul>
+<li><code>ViewResolver</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>JSP的类图如下：</p>
+<p><img src="https://github.com/GreZhang/GreZhang.github.io/raw/master/images/spring-boot/JSP%E8%A7%86%E5%9B%BE%E8%A7%A3%E6%9E%90%E5%99%A8%E7%B1%BB%E5%9B%BE.jpg" alt="JSP视图解析器类图"></p>
+<p>JSP视图处理流程：</p>
+<p><img src="https://github.com/GreZhang/GreZhang.github.io/raw/master/images/spring-boot/JSP%E6%B8%B2%E6%9F%93%E6%B5%81%E7%A8%8B.jpg" alt="JSP渲染流程"></p>
+<ol start="2">
+<li>Velocity视图解析器：</li>
+</ol>
+<ul>
+<li><p><code>VelocityViewResolver</code></p>
+<ul>
+<li><code>AbstractTemplateViewResolver</code><ul>
+<li><code>UrlBasedViewResolver</code><ul>
+<li><code>AbstractCachingViewResolver</code><ul>
+<li><code>ViewResolver</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>视图解析器类图如下：</p>
+</li>
+</ul>
+<p><img src="https://github.com/GreZhang/GreZhang.github.io/raw/master/images/spring-boot/Velocity%E8%A7%86%E5%9B%BE%E8%A7%A3%E6%9E%90%E5%99%A8%E7%B1%BB%E5%9B%BE.jpg" alt="Velocity视图解析器类图"></p>
+<h2 id="Velocity"><a href="#Velocity" class="headerlink" title="Velocity"></a>Velocity</h2><p>Velocity可以和Web应用、非Web应用集成</p>
+<ul>
+<li>Web</li>
+<li>Non Web</li>
+<li>Template（.mv）-&gt;Writer-&gt;Content(String)</li>
+</ul>
+<p>从Spring Boot1.5开始将会删除Velocity，1.7 2010年就没有更新，直到2017年才更新一版2.0。</p>
+<h2 id="代码演示"><a href="#代码演示" class="headerlink" title="代码演示"></a>代码演示</h2><p>详见：<a href="">github</a></p>
+<h1 id="Thymeleaf视图技术"><a href="#Thymeleaf视图技术" class="headerlink" title="Thymeleaf视图技术"></a>Thymeleaf视图技术</h1><p>Spring Boot实施推广过程当中，除了使用Annotation方式重构之外，在前端渲染引擎方面，也推出了Thymeleaf、Velocity、FreeMark等。Thymeleaf的一些优缺点个人理解如下：</p>
+<ul>
+<li><p>该模板引擎是Spring Boot官方推荐使用的，优点如下：</p>
+<ul>
+<li><p>HTML结构化、UI友好、表达式功能强大</p>
+<p>Thymeleaf设计的初衷就是针对UI友好，让开发人员在编写模板页面时，遵循标准的HTML语法。</p>
+</li>
+<li><p>表达功能强大</p>
+<p>不但兼容标准OGNL表达式，而且也支持Spring表达。</p>
+</li>
+</ul>
+</li>
+<li><p>缺点：</p>
+<ul>
+<li>编写略微繁琐，扩展复杂</li>
+<li>性能一般</li>
+</ul>
+</li>
+</ul>
+<h2 id="渲染上下文模型-Model"><a href="#渲染上下文模型-Model" class="headerlink" title="渲染上下文模型 Model"></a>渲染上下文模型 Model</h2><ul>
+<li>Spring web MVC<ul>
+<li>接口类型</li>
+<li>Model</li>
+<li>ModelMap</li>
+<li>ModelAndView<ul>
+<li>Model-&gt;ModelMap</li>
+<li>View </li>
+</ul>
+</li>
+</ul>
+</li>
+<li>注解类型<ul>
+<li><code>@ModelAttribute</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="EL表达式"><a href="#EL表达式" class="headerlink" title="EL表达式"></a>EL表达式</h2><ul>
+<li>字符值</li>
+<li>多种数据类型<ul>
+<li>数字：0,12,35..</li>
+<li>Boolean: true,false</li>
+<li>空：null</li>
+<li>文字标记：one, sometext, main,…</li>
+</ul>
+</li>
+<li>逻辑表达式<ul>
+<li>if else</li>
+</ul>
+</li>
+<li>迭代表达式<ul>
+<li>for each / while</li>
+</ul>
+</li>
+<li>反射<ul>
+<li>Java Reflection</li>
+<li>CGLib</li>
+</ul>
+</li>
+</ul>
+<h2 id="配置文件详解"><a href="#配置文件详解" class="headerlink" title="配置文件详解"></a>配置文件详解</h2><p>这里只告诉怎么去学习这个配置文件，不会详细的介绍每一个属性的含义，具体请参考<a href="https://docs.spring.io/spring-boot/docs/2.0.4.RELEASE/reference/htmlsingle/#howto-reload-thymeleaf-content" target="_blank" rel="noopener">官网</a></p>
+<p>像这种模板引擎的相关配置，我们怎么去学习？</p>
+<ul>
+<li><p>第一步：搜索 <code>ThymeleafProperties</code>类，找到<code>@ConfigurationProperties</code>确认前缀</p>
+</li>
+<li><p>第二不：是否是字段和属性名一一对应，一般都是前缀spring.thymeleaf+属性名</p>
+<p>官网：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">spring.thymeleaf.cache=true</span><br><span class="line">spring.thymeleaf.check-template=true</span><br><span class="line">spring.thymeleaf.encoding=UTF-8</span><br><span class="line">spring.thymeleaf.check-template-location=true</span><br><span class="line">spring.thymeleaf.enabled=true</span><br><span class="line">spring.thymeleaf.mode=HTML</span><br><span class="line">spring.thymeleaf.prefix=classpath:/templates/</span><br><span class="line">spring.thymeleaf.suffix=.html</span><br><span class="line">spring.thymeleaf.view-names=</span><br></pre></td></tr></table></figure>
+<p>ThymeleafProperties类部分属性：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"> */</span><br><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"spring.thymeleaf"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThymeleafProperties</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Charset DEFAULT_ENCODING = StandardCharsets.UTF_8;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String DEFAULT_PREFIX = <span class="string">"classpath:/templates/"</span>;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String DEFAULT_SUFFIX = <span class="string">".html"</span>; </span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">boolean</span> checkTemplate = <span class="keyword">true</span>;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">boolean</span> checkTemplateLocation = <span class="keyword">true</span>;</span><br><span class="line">  <span class="keyword">private</span> String prefix = DEFAULT_PREFIX;</span><br><span class="line">  <span class="keyword">private</span> String suffix = DEFAULT_SUFFIX;</span><br><span class="line">  <span class="keyword">private</span> String mode = <span class="string">"HTML"</span>;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">boolean</span> cache = <span class="keyword">true</span>;</span><br><span class="line">  <span class="keyword">private</span> String[] viewNames;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="模板寻址"><a href="#模板寻址" class="headerlink" title="模板寻址"></a>模板寻址</h2><p>prefix + “viewName” + suffix</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">classpath:/templates/thymeleaf/index.dota2</span><br><span class="line">view.setUrl(getPrefix() + viewName + getSuffix())</span><br></pre></td></tr></table></figure>
+<h2 id="模板缓存"><a href="#模板缓存" class="headerlink" title="模板缓存"></a>模板缓存</h2><p>默认 Cache = true </p>
+<p>Cache = false -&gt; 设置缓存时间</p>
+<h1 id="Spring-MVC模板渲染逻辑"><a href="#Spring-MVC模板渲染逻辑" class="headerlink" title="Spring MVC模板渲染逻辑"></a>Spring MVC模板渲染逻辑</h1><p>Spring MVC 核心总控制器 <code>DispatcherServlet</code></p>
+<ul>
+<li><p>C:</p>
+<ul>
+<li><code>DispatcherServlet</code></li>
+</ul>
+</li>
+<li><p>M:</p>
+<ul>
+<li><p>Spring MVC 部分</p>
+</li>
+<li><p>Model/ModelMap/ModelAndView(Model部分)</p>
+</li>
+<li><p><code>@ModelAttribute</code></p>
+</li>
+<li><p>模板引擎（通常）</p>
+</li>
+<li><p>通用的方式</p>
+<ul>
+<li>模板上下文</li>
+<li>內建/内嵌自己的工具变量</li>
+</ul>
+</li>
+<li><p>JSP 内置（ built-in ）九大变量</p>
+<ul>
+<li>Servlet Scope 上下文（Spring<code>@Scope</code>）</li>
+<li>PageContext（page 变量）<ul>
+<li>关注当前页面</li>
+<li>A forward B</li>
+<li>A 变量只能 A 页面使用，不能共享给 B</li>
+<li>A t 和 B t 可以采用同名变量，同时使用</li>
+</ul>
+</li>
+<li>Servlet Request（请求上下文） -<code>WebApplicationContext#SCOPE_REQUEST</code><ul>
+<li>关注当前请求</li>
+<li>A forward B<ul>
+<li>A 请求变量可以用于 B 页面</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>​</p>
+<ul>
+<li>Servlet Session（会话上下文） - <code>WebApplicationContext#SCOPE_SESSION</code><ul>
+<li>关注当前会话</li>
+<li>A forward / redirect B<ul>
+<li>A 请求变量可以用于 B 页面</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>​</p>
+<ul>
+<li>Servlet ServletContext（应用上下文） - <code>WebApplicationContext#SCOPE_APPLICATION</code><ul>
+<li>关注当前应用</li>
+<li>用户 A 和 用户 B 会话可以共享</li>
+</ul>
+</li>
+<li>JSP 内置变量( JSP = Servlet )</li>
+<li>out（Writer = ServletResponse#getWriter()）</li>
+<li>exception ( Throwable)</li>
+<li>config( ServletConfig )</li>
+<li>page ( Jsp Servlet 对象)</li>
+<li>response（ServletResponse)</li>
+</ul>
+</li>
+<li><p>thymeleaf变量</p>
+<p><code>StandardExpressionObjectFactory</code> -&gt; 构建 <code>IExpressionContext</code></p>
+</li>
+</ul>
+</li>
+<li><p>V: </p>
+<ul>
+<li><p>视图对象</p>
+</li>
+<li><p>Servlet</p>
+<ul>
+<li><code>RequestDispatcher#forward</code></li>
+<li><code>RequestDispatcher#include</code></li>
+<li><code>HttpServletResponse#sendRedirect</code></li>
+</ul>
+</li>
+<li><p>Spring MVC </p>
+<ul>
+<li><code>View</code></li>
+<li>forward:<ul>
+<li><code>InternalResourceView</code></li>
+</ul>
+</li>
+<li>redirect:<ul>
+<li><code>RedirectView</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Struts </p>
+<ul>
+<li><code>Action</code></li>
+<li><code>ForwardAction</code></li>
+<li><code>RedirectAction</code></li>
+</ul>
+</li>
+<li><p>视图处理对象</p>
+</li>
+<li><p>Spring MVC</p>
+<ul>
+<li><p>*.do-&gt; <code>DispatcherServlet</code>-&gt;<code>Controller</code>-&gt;View-&gt;<code>ViewResolver</code>-&gt;<code>View#render</code>-&gt;<code>HTML</code>-&gt;<code>HttpServletResponse</code></p>
+</li>
+<li><p>Thymeleaf </p>
+<ul>
+<li><p><code>ViewResolver</code>-&gt; <code>ThymeleafViewResolver</code></p>
+</li>
+<li><p><code>View</code>-&gt; <code>ThymeleafView</code></p>
+</li>
+<li><p>通过模板名称解析模板资源（<code>ClassPathResource</code>）</p>
+<ul>
+<li><code>TemplateResolution</code></li>
+</ul>
+</li>
+<li><p>读取资源，并且渲染内容 HTML</p>
+<ul>
+<li><code>IEngineContext</code></li>
+<li><code>ProcessorTemplateHandler</code></li>
+</ul>
+</li>
+<li><p>HTML 内容输出到 Response</p>
+</li>
+<li><p>源码路径</p>
+<p><code>org.thymeleaf.TemplateEngine#process(org.thymeleaf.TemplateSpec, org.thymeleaf.context.IContext, java.io.Writer)</code><br><code>org.thymeleaf.engine.TemplateManager#parseAndProc</code></p>
+</li>
+</ul>
+</li>
+<li><p>JSP</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"viewResolver"</span> <span class="attr">class</span>=<span class="string">"org.springframework.web.servlet.view.InternalResourceViewResolver"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"viewClass"</span> <span class="attr">value</span>=<span class="string">"org.springframework.web.servlet.view.JstlView"</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"prefix"</span> <span class="attr">value</span>=<span class="string">"/WEB-INF/jsp/"</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"suffix"</span> <span class="attr">value</span>=<span class="string">".jsp"</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>ViewResolver -&gt;InternalResourceViewResolver</p>
+</li>
+<li><p>View -&gt; JstlView</p>
+<ul>
+<li>Foward -&gt; RequestDispatcher</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Struts</p>
+<p>*.do -&gt; <code>ActionServlet</code>-&gt; <code>Action</code> -&gt; <code>ForwardAction</code>-&gt; <code>RequestDispatcher</code>-&gt; JSP（<code>Servlet</code>） -&gt; HTML -&gt; <code>HttpServletResponse</code></p>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://github.com/GreZhang/GreZhang.github.io/raw/master/images/spring-boot/%E8%A7%86%E5%9B%BE%E6%B8%B2%E6%9F%93%E6%B5%81%E7%A8%8B.jpg" alt="视图渲染流程"></p>
+<h1 id="国际化"><a href="#国际化" class="headerlink" title="国际化"></a>国际化</h1><h1 id="模板引擎核心组件"><a href="#模板引擎核心组件" class="headerlink" title="模板引擎核心组件"></a>模板引擎核心组件</h1><p>资源管理</p>
+<p>模板封装</p>
+<p>模板解析</p>
+<p>国际化</p>
+<p>渲染上下文</p>
+<p>表达式引擎</p>
+<p>渲染引擎</p>
+<p>这些组件可以查阅相关资料，这里不再累述。。。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Spring-Boot/" rel="tag"># Spring Boot</a>
+          
+            <a href="/tags/微服务/" rel="tag"># 微服务</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/08/spring-boot/02spring boot之Application/" rel="next" title="Spring Boot之Application">
+                <i class="fa fa-chevron-left"></i> Spring Boot之Application
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/20/spring-boot/05spring boot之JDBC/" rel="prev" title="spring boot之JDBC">
+                spring boot之JDBC <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="Gre World" />
+            
+              <p class="site-author-name" itemprop="name">Gre World</p>
+              <p class="site-description motion-element" itemprop="description">原来我的代码竟然如此风骚</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Bean的生命周期"><span class="nav-number">1.</span> <span class="nav-text">Bean的生命周期</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Velocity视图技术"><span class="nav-number">2.</span> <span class="nav-text">Velocity视图技术</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Velocity与JSP对比"><span class="nav-number">2.1.</span> <span class="nav-text">Velocity与JSP对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Velocity"><span class="nav-number">2.2.</span> <span class="nav-text">Velocity</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码演示"><span class="nav-number">2.3.</span> <span class="nav-text">代码演示</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Thymeleaf视图技术"><span class="nav-number">3.</span> <span class="nav-text">Thymeleaf视图技术</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#渲染上下文模型-Model"><span class="nav-number">3.1.</span> <span class="nav-text">渲染上下文模型 Model</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EL表达式"><span class="nav-number">3.2.</span> <span class="nav-text">EL表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置文件详解"><span class="nav-number">3.3.</span> <span class="nav-text">配置文件详解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模板寻址"><span class="nav-number">3.4.</span> <span class="nav-text">模板寻址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模板缓存"><span class="nav-number">3.5.</span> <span class="nav-text">模板缓存</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-MVC模板渲染逻辑"><span class="nav-number">4.</span> <span class="nav-text">Spring MVC模板渲染逻辑</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#国际化"><span class="nav-number">5.</span> <span class="nav-text">国际化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#模板引擎核心组件"><span class="nav-number">6.</span> <span class="nav-text">模板引擎核心组件</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gre World</span>
+
+  
+</div>
+<span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站访客数<span id="busuanzi_value_site_uv"></span>人次
+</span>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+  
+  <!-- custom analytics part create by xiamo -->
+<script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+<script>AV.initialize("9mpWMYP4Yg1L73KyJMTLtozv-gzGzoHsz", "BoybBq32rKIn7hzV5pLuPcls");</script>
+<script>
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+	$(".leancloud_visitors").each(function() {
+		var url = $(this).attr("id").trim();
+		query.equalTo("url", url);
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {
+					var content = '0 ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+					return;
+				}
+				for (var i = 0; i < results.length; i++) {
+					var object = results[i];
+					var content = object.get('time') + ' ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+				}
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+	});
+}
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content =  counter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else if ($('.post-title-link').length > 1) {
+		showTime(Counter);
+	}
+}); 
+</script>
+  
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("9mpWMYP4Yg1L73KyJMTLtozv-gzGzoHsz", "BoybBq32rKIn7hzV5pLuPcls");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
