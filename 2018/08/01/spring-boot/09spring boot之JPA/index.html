@@ -81,18 +81,20 @@
 
 
 
-<meta name="description" content="Java Persistence APISpring Data JPAJPA与Spring Boot整合">
+<meta name="description" content="Java Persistence API介绍百度百科JPA是Java Persistence API的简称，中文名Java持久层API，是JDK 5.0注解或XML描述对象－关系表的映射关系，并将运行期的实体对象持久化到数据库中。 Oracle官网介绍The Java Persistence API provides a POJO persistence model for object-rela">
 <meta name="keywords" content="Spring Boot,微服务">
 <meta property="og:type" content="article">
 <meta property="og:title" content="spring boot之JPA">
 <meta property="og:url" content="https://grezhang.github.io/2018/08/01/spring-boot/09spring boot之JPA/index.html">
 <meta property="og:site_name" content="Gre的博客">
-<meta property="og:description" content="Java Persistence APISpring Data JPAJPA与Spring Boot整合">
+<meta property="og:description" content="Java Persistence API介绍百度百科JPA是Java Persistence API的简称，中文名Java持久层API，是JDK 5.0注解或XML描述对象－关系表的映射关系，并将运行期的实体对象持久化到数据库中。 Oracle官网介绍The Java Persistence API provides a POJO persistence model for object-rela">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-08-19T03:59:03.566Z">
+<meta property="og:image" content="https://grezhang.github.io/hexo/source/images/spring-boot/JPA-实战ER图.jpg">
+<meta property="og:updated_time" content="2018-08-26T09:01:38.814Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="spring boot之JPA">
-<meta name="twitter:description" content="Java Persistence APISpring Data JPAJPA与Spring Boot整合">
+<meta name="twitter:description" content="Java Persistence API介绍百度百科JPA是Java Persistence API的简称，中文名Java持久层API，是JDK 5.0注解或XML描述对象－关系表的映射关系，并将运行期的实体对象持久化到数据库中。 Oracle官网介绍The Java Persistence API provides a POJO persistence model for object-rela">
+<meta name="twitter:image" content="https://grezhang.github.io/hexo/source/images/spring-boot/JPA-实战ER图.jpg">
 
 
 
@@ -381,7 +383,461 @@
       
 
       
-        <h1 id="Java-Persistence-API"><a href="#Java-Persistence-API" class="headerlink" title="Java Persistence API"></a>Java Persistence API</h1><h1 id="Spring-Data-JPA"><a href="#Spring-Data-JPA" class="headerlink" title="Spring Data JPA"></a>Spring Data JPA</h1><h1 id="JPA与Spring-Boot整合"><a href="#JPA与Spring-Boot整合" class="headerlink" title="JPA与Spring Boot整合"></a>JPA与Spring Boot整合</h1>
+        <h1 id="Java-Persistence-API"><a href="#Java-Persistence-API" class="headerlink" title="Java Persistence API"></a>Java Persistence API</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><h3 id="百度百科"><a href="#百度百科" class="headerlink" title="百度百科"></a>百度百科</h3><p>JPA是Java Persistence API的简称，中文名Java持久层API，是JDK 5.0注解或XML描述对象－关系表的映射关系，并将运行期的实体<a href="https://baike.baidu.com/item/%E5%AF%B9%E8%B1%A1%E6%8C%81%E4%B9%85%E5%8C%96/7316192" target="_blank" rel="noopener">对象持久化</a>到数据库中。</p>
+<h3 id="Oracle官网介绍"><a href="#Oracle官网介绍" class="headerlink" title="Oracle官网介绍"></a>Oracle官网介绍</h3><p>The Java Persistence API provides a POJO persistence model for object-relational mapping. The Java Persistence API was developed by the EJB 3.0 software expert group as part of JSR 220, but its use is not limited to EJB software components. It can also be used directly by web applications and application clients, and even outside the Java EE platform, for example, in Java SE applications. See <a href="http://www.jcp.org/en/jsr/detail?id=220" target="_blank" rel="noopener">JSR 220</a>.</p>
+<blockquote>
+<p>Java Persistence API为对象关系映射提供POJO持久性模型。 Java Persistence API由EJB 3.0软件专家组开发，作为JSR 220的一部分，但其使用不仅限于EJB软件组件。它也可以由Web应用程序和应用程序客户端直接使用，甚至可以在Java EE平台之外使用，例如，在Java SE应用程序中。见JSR 220。</p>
+</blockquote>
+<p>JPA1.0整合查询语言（Query）和对象关系映射（ORM）元数据定义。</p>
+<p>JPA2.0在1.0的基础上，增加 Criteria 查询、元数据API以及校验支持。</p>
+<h2 id="历史"><a href="#历史" class="headerlink" title="历史"></a>历史</h2><p>2009 年 JPA 2.0 最终规范发布（JSR-317）</p>
+<p>2006 年 JPA 1.0 最终规范发布（JSR-220） </p>
+<p>​    EJB 3.0 的子规范</p>
+<h2 id="一些概念"><a href="#一些概念" class="headerlink" title="一些概念"></a>一些概念</h2><h3 id="实体-Entities"><a href="#实体-Entities" class="headerlink" title="实体(Entities)"></a>实体(Entities)</h3><p>轻量级持久化域(domain)对象。</p>
+<h3 id="实体类-Entity-class"><a href="#实体类-Entity-class" class="headerlink" title="实体类(Entity class)"></a>实体类(Entity class)</h3><p>实体类可能利用辅助类或者用于表示状态。</p>
+<ul>
+<li>约束<ul>
+<li>实体类必须使用@Entity标注或者XML描述</li>
+<li>实体类至少包含一个默认构造器，并且构造器必须是public 或者 protected</li>
+<li>实体类必须是顶级类，不能是枚举或者接口</li>
+<li>实体类禁止是final类</li>
+<li>实体支持继承、多态关联以及多态查询</li>
+</ul>
+</li>
+</ul>
+<h3 id="实体持久字段和属性"><a href="#实体持久字段和属性" class="headerlink" title="实体持久字段和属性"></a>实体持久字段和属性</h3><p>实体持久状态由字段（Fields）或者属性（Properties），字段即实例的属性或变量，属性则是JavaBeans实例的setter或getter方法。    </p>
+<p>实例属性的访问性必须是private、protected或者包可见，属性的可见性必须是public或者protected。    </p>
+<p>字段和属性可能是单一类型值或集合类型值。</p>
+<h3 id="持久字段和属性类型"><a href="#持久字段和属性类型" class="headerlink" title="持久字段和属性类型"></a>持久字段和属性类型</h3><ul>
+<li>原生类型</li>
+<li>自定义类型（实现Java Serializable接口）</li>
+<li>枚举</li>
+<li>实体类型（包括集合实体类型）</li>
+<li>嵌入类型</li>
+</ul>
+<h3 id="访问类型"><a href="#访问类型" class="headerlink" title="访问类型"></a>访问类型</h3><ul>
+<li>默认访问类型<ul>
+<li>非transient 或者@Transient字段</li>
+<li>非@Transient 属性</li>
+</ul>
+</li>
+<li>显示访问类型<ul>
+<li>注解类型<ul>
+<li>实体类</li>
+<li>映射超类</li>
+<li>嵌套类</li>
+</ul>
+</li>
+<li>注解<ul>
+<li>@Access(AccessType.FIELD) 字段</li>
+<li>@Access(AccessType.PROPERTY) 属性</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="实体主键（Primary-Key）"><a href="#实体主键（Primary-Key）" class="headerlink" title="实体主键（Primary Key）"></a>实体主键（Primary Key）</h3><p>每个实体必须存在主键，主键必须定义在实体类。</p>
+<ul>
+<li>简单主键<ul>
+<li><code>@Id</code></li>
+</ul>
+</li>
+<li>复合主键<ul>
+<li><code>@EmbeddedId</code></li>
+<li><code>@IdClass</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="实体关系"><a href="#实体关系" class="headerlink" title="实体关系"></a>实体关系</h3><p>实体关系可能一对一、一对多、多对一或多对多，这些关系是多态性的，可以是单向或者双向。</p>
+<ul>
+<li>注解表述方式<ul>
+<li><code>@OneToOne</code></li>
+<li><code>@OneToMany</code></li>
+<li><code>@ManyToOne</code></li>
+<li><code>@ManyToMany</code></li>
+</ul>
+</li>
+<li>XML表述方式<ul>
+<li><code>@EmbeddedId</code></li>
+<li><code>@IdClass</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="实体双向关系"><a href="#实体双向关系" class="headerlink" title="实体双向关系"></a>实体双向关系</h3><p>实体双向关系是指两实体之间不仅存在拥有方（owning），也存在倒转方（inverse）。主方决定了更新级联关系到数据库。</p>
+<ul>
+<li>规则<ul>
+<li>倒转必须通过@OneToOne、@OneToMany或者@ManyToMany中的mappedBy属性方法关联到拥有方的字段或者属性。</li>
+<li>一对多、多对一双向关系中的多方必须是主方，因此@ManyToOne 注解不能指定mappedBy属性方法。</li>
+<li>双向一对一关系中，主方相当于包含外键的一方。</li>
+<li>双向多对多关系中，任何一方可能是拥有方。</li>
+</ul>
+</li>
+</ul>
+<h4 id="一对一（OneToOne）"><a href="#一对一（OneToOne）" class="headerlink" title="一对一（OneToOne）"></a>一对一（OneToOne）</h4><ul>
+<li>假设<ul>
+<li>实体A引用单个实体B的实例</li>
+<li>实体B引用单个实体A的实例</li>
+<li>实体A在关系中处于拥有方</li>
+</ul>
+</li>
+<li>默认映射<ul>
+<li>实体A被映射到数据库表A</li>
+<li>实体B被映射到数据库表B</li>
+<li>表A包含一个外键关联B</li>
+</ul>
+</li>
+<li>举例<ul>
+<li>客户（Customer）与信用卡（Credit Card）的关系(在同一家银行)</li>
+<li>人（Person）与身份证的关系</li>
+<li>人（Person）与驾照的关系</li>
+</ul>
+</li>
+</ul>
+<h4 id="多对一（ManyToOne）-一对多（OneToMany）"><a href="#多对一（ManyToOne）-一对多（OneToMany）" class="headerlink" title="多对一（ManyToOne）/一对多（OneToMany）"></a>多对一（ManyToOne）/一对多（OneToMany）</h4><ul>
+<li>假设<ul>
+<li>实体A引用单个实体B的实例</li>
+<li>实体B引用多个实体A的实例</li>
+<li>实体A在关系中处于拥有方</li>
+</ul>
+</li>
+<li>默认映射<ul>
+<li>实体A被映射到数据库表A</li>
+<li>实体B被映射到数据库表B</li>
+<li>表A包含一个外键关联B</li>
+</ul>
+</li>
+<li>举例<ul>
+<li>店铺（Store）与客户（Customer）的关系</li>
+<li>人（Person）与手机的关系</li>
+</ul>
+</li>
+</ul>
+<h4 id="多对多（ManyToMany）"><a href="#多对多（ManyToMany）" class="headerlink" title="多对多（ManyToMany）"></a>多对多（ManyToMany）</h4><ul>
+<li>假设<ul>
+<li>实体A引用单个实体B的实例</li>
+<li>实体B引用多个实体A的实例</li>
+<li>实体A在关系中处于拥有方</li>
+</ul>
+</li>
+<li>默认映射<ul>
+<li>实体A被映射到数据库表A</li>
+<li>实体B被映射到数据库表B</li>
+<li>存在一个名为A_B的关联表（拥有方表名为前缀），其中包含两个外键列，一列关联表A的主键，另外一列关联表B的主键。</li>
+</ul>
+</li>
+<li>举例<ul>
+<li>客户（Customer）与图书（图书）的关系</li>
+<li>人与房屋的关系</li>
+<li>店铺与人的关系</li>
+</ul>
+</li>
+</ul>
+<h3 id="实体单向关系"><a href="#实体单向关系" class="headerlink" title="实体单向关系"></a>实体单向关系</h3><h4 id="一对一（OneToOne）-1"><a href="#一对一（OneToOne）-1" class="headerlink" title="一对一（OneToOne）"></a>一对一（OneToOne）</h4><ul>
+<li>假设<ul>
+<li>实体A引用单个实体B的实例</li>
+<li>实体B没有引用单个实体A的实例</li>
+<li>实体A在关系中处于拥有方</li>
+</ul>
+</li>
+<li>默认映射<ul>
+<li>实体A被映射到数据库表A</li>
+<li>实体B被映射到数据库表B</li>
+<li>表A包含一个外键关联B</li>
+</ul>
+</li>
+<li>举例<ul>
+<li>客户（Customer）与信用卡（Credit Card）的关系</li>
+</ul>
+</li>
+</ul>
+<h4 id="一对多（OneToMany）"><a href="#一对多（OneToMany）" class="headerlink" title="一对多（OneToMany）"></a>一对多（OneToMany）</h4><ul>
+<li>假设<ul>
+<li>实体A引用单个实体B的实例</li>
+<li>实体B没有引用单个实体A的实例</li>
+<li>实体A在关系中处于拥有方</li>
+</ul>
+</li>
+<li>默认映射<ul>
+<li>实体A被映射到数据库表A</li>
+<li>实体B被映射到数据库表B</li>
+<li>存在一个名为A_B的关联表（拥有方表名为前缀），其中包含两个外键列，一列关联表A的主键，另外一列关联表B的主键。</li>
+</ul>
+</li>
+<li>举例<ul>
+<li>客户（Customer）与信用卡（Credit Card）的关系</li>
+</ul>
+</li>
+</ul>
+<h3 id="实体继承（Inheritance）"><a href="#实体继承（Inheritance）" class="headerlink" title="实体继承（Inheritance）"></a>实体继承（Inheritance）</h3><p>实体可继承其他实体。实体之间支持继承、多态关联、多态查询</p>
+<ul>
+<li>继承方式：<ul>
+<li>继承抽象实体类<ul>
+<li>@Inheritance</li>
+</ul>
+</li>
+<li>继承已映射父类型<ul>
+<li>@MappedSuperclass</li>
+<li>@AssociationOverride</li>
+</ul>
+</li>
+<li>继承非实体类型</li>
+</ul>
+</li>
+</ul>
+<h3 id="实体实例生命周期（Life-Cycle）"><a href="#实体实例生命周期（Life-Cycle）" class="headerlink" title="实体实例生命周期（Life Cycle）"></a>实体实例生命周期（Life Cycle）</h3><p>创建</p>
+<p>持久化</p>
+<p>移除</p>
+<p>同步到数据库</p>
+<p>刷新实例</p>
+<p>淘汰</p>
+<h3 id="持久化上下文使用期限（Persistence-Context-Lifetime）"><a href="#持久化上下文使用期限（Persistence-Context-Lifetime）" class="headerlink" title="持久化上下文使用期限（Persistence Context Lifetime）"></a>持久化上下文使用期限（Persistence Context Lifetime）</h3><ul>
+<li>类型<ul>
+<li>事务类型（默认）</li>
+<li>扩展类型（继承容器的事务）</li>
+</ul>
+</li>
+<li>阶段<ul>
+<li>事务提交阶段<ul>
+<li>事务类型:实体状态-&gt;托管</li>
+<li>扩展类型：实体状态-&gt;继续维持</li>
+</ul>
+</li>
+<li>事务回滚阶段<ul>
+<li>实体状态-&gt;托管</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="实体监听器和回调方法"><a href="#实体监听器和回调方法" class="headerlink" title="实体监听器和回调方法"></a>实体监听器和回调方法</h3><ul>
+<li>实体监听器<ul>
+<li><code>@EntityListeners</code></li>
+</ul>
+</li>
+<li>回调方法<ul>
+<li><code>@PrePersist</code></li>
+<li><code>@PostPersist</code></li>
+<li><code>@PreRemove</code></li>
+<li><code>@PostRemove</code></li>
+<li><code>@PreUpdate</code></li>
+<li><code>@PostUpdate</code></li>
+<li><code>@PostLoad</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="Spring-Data-JPA"><a href="#Spring-Data-JPA" class="headerlink" title="Spring Data JPA"></a>Spring Data JPA</h1><p>缓存（Caching）</p>
+<p>查询API（Query API）</p>
+<p>Criteria API</p>
+<p>元模型API（Metamodel API）</p>
+<h2 id="Spring-Data-Repository"><a href="#Spring-Data-Repository" class="headerlink" title="Spring Data Repository"></a>Spring Data Repository</h2><h3 id="核心接口"><a href="#核心接口" class="headerlink" title="核心接口"></a>核心接口</h3><ul>
+<li><code>RepositoryCrud</code></li>
+<li><code>RepositoryJpa</code></li>
+<li><code>Repository</code></li>
+<li><code>@NoRepositoryBean</code></li>
+</ul>
+<h3 id="激活"><a href="#激活" class="headerlink" title="激活"></a>激活</h3><ul>
+<li><code>JPA Repository</code></li>
+<li><code>@EnableJpaRepositories</code></li>
+</ul>
+<h1 id="JPA与Spring-Boot整合"><a href="#JPA与Spring-Boot整合" class="headerlink" title="JPA与Spring Boot整合"></a>JPA与Spring Boot整合</h1><p>创建spring-boot-jpa工程，引入下列依赖包：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-jpa<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">source</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">source</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">target</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">target</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>编写启动类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableJpaRepositories</span>(basePackages = <span class="string">"com.gre.world.jpa"</span>)</span><br><span class="line"><span class="meta">@EnableTransactionManagement</span>(proxyTargetClass = <span class="keyword">true</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringBootJpaApplication</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">( String[] args )</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        SpringApplication.run(SpringBootJpaApplication.class,args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="实战演练"><a href="#实战演练" class="headerlink" title="实战演练"></a>实战演练</h1><p>我们有如下实体：</p>
+<p>客户（Customer）</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">列名</th>
+<th>解释</th>
+<th>数据类型</th>
+<th>长度</th>
+<th>非空</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">id</td>
+<td>主键</td>
+<td>Long</td>
+<td>20</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">name</td>
+<td>姓名</td>
+<td>varchar</td>
+<td>50</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>信用卡（Credit Card）</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">列名</th>
+<th>解释</th>
+<th>数据类型</th>
+<th>长度</th>
+<th>非空</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">id</td>
+<td>主键</td>
+<td>Long</td>
+<td>20</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">number</td>
+<td>卡号</td>
+<td>varchar</td>
+<td>128</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">registeredDate</td>
+<td>注册日期</td>
+<td>date</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>店铺（Store）</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">列名</th>
+<th>解释</th>
+<th>数据类型</th>
+<th>长度</th>
+<th>非空</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">id</td>
+<td>主键</td>
+<td>Long</td>
+<td>20</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">name</td>
+<td>店名</td>
+<td>varchar</td>
+<td>128</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>书（Book）</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">列名</th>
+<th>解释</th>
+<th>数据类型</th>
+<th>长度</th>
+<th>非空</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">id</td>
+<td>主键</td>
+<td>Long</td>
+<td>20</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">name</td>
+<td>书名</td>
+<td>varchar</td>
+<td>128</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">isbn</td>
+<td>书签</td>
+<td>varchar</td>
+<td>128</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">publishDate</td>
+<td>发布日期</td>
+<td>date</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>以及VIP客户，继承Customer</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">列名</th>
+<th>解释</th>
+<th>数据类型</th>
+<th>长度</th>
+<th>非空</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">discount</td>
+<td>折扣</td>
+<td>Long</td>
+<td>20</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>其中的ER关系图如下:</p>
+<p><img src="../../../../../hexo/source/images/spring-boot/JPA-实战ER图.jpg" alt="JPA-实战ER图"></p>
+<h2 id="一对一映射"><a href="#一对一映射" class="headerlink" title="一对一映射"></a>一对一映射</h2><p>客户和信用卡是一对一的关系，在同一家银行当中，一个客户只能拥有一张信用卡，而反过来，一张信用卡只能被一位客户拥有。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Table</span>(name = <span class="string">"customer"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Customer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> id;<span class="comment">// 注解</span></span><br><span class="line">    <span class="meta">@Column</span>(length = <span class="number">50</span>)</span><br><span class="line">    <span class="keyword">private</span> String name;<span class="comment">// 姓名</span></span><br><span class="line">    <span class="meta">@OneToOne</span></span><br><span class="line">    <span class="keyword">private</span> CreditCard creditCard;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// get set方法略...</span></span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Table</span>(name = <span class="string">"credit_cards"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CreditCard</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> id;</span><br><span class="line">    <span class="meta">@Column</span>(length = <span class="number">128</span>)</span><br><span class="line">    <span class="keyword">private</span> String number;</span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"registered_date"</span>)</span><br><span class="line">    <span class="keyword">private</span> Date registeredDate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@OneToOne</span>(mappedBy = <span class="string">"creditCard"</span>)</span><br><span class="line">    <span class="keyword">private</span> Customer customer;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// get set方法略...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主要，这里客户才是拥有方，不能讲<code>mappedBy</code>写在Customer类上。</p>
+<h2 id="一对多映射"><a href="#一对多映射" class="headerlink" title="一对多映射"></a>一对多映射</h2><p>对个客户可以到一家店铺中去购买商品，而一家店铺可以有多个客户来购买商品。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Table</span>(name = <span class="string">"customer"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Customer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> id;<span class="comment">// 注解</span></span><br><span class="line">    <span class="meta">@Column</span>(length = <span class="number">50</span>)</span><br><span class="line">    <span class="keyword">private</span> String name;<span class="comment">// 姓名</span></span><br><span class="line">    <span class="meta">@OneToOne</span></span><br><span class="line">    <span class="keyword">private</span> CreditCard creditCard;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ManyToOne</span></span><br><span class="line">    <span class="keyword">private</span> Store store;</span><br><span class="line">   <span class="comment">// get set方法略...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Table</span>(name=<span class="string">"store"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Store</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue</span></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Column</span>(length = <span class="number">128</span>)</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@OneToMany</span>(mappedBy = <span class="string">"store"</span>)</span><br><span class="line">    <span class="keyword">private</span> Collection&lt;Customer&gt; customers;</span><br><span class="line"><span class="comment">// get set方法略...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="多对多映射"><a href="#多对多映射" class="headerlink" title="多对多映射"></a>多对多映射</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Table</span>(name = <span class="string">"customer"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Customer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> id;<span class="comment">// 注解</span></span><br><span class="line">    <span class="meta">@Column</span>(length = <span class="number">50</span>)</span><br><span class="line">    <span class="keyword">private</span> String name;<span class="comment">// 姓名</span></span><br><span class="line">    <span class="meta">@OneToOne</span></span><br><span class="line">    <span class="keyword">private</span> CreditCard creditCard;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ManyToOne</span></span><br><span class="line">    <span class="keyword">private</span> Store store;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ManyToMany</span></span><br><span class="line">    <span class="keyword">private</span> Collection&lt;Book&gt; books;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// get set方法略...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Table</span>(name = <span class="string">"books"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Book</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue</span></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String isbn;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Date publishDate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ManyToMany</span>(mappedBy = <span class="string">"books"</span>)</span><br><span class="line">    <span class="keyword">private</span> Collection&lt;Customer&gt; customers;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// get set方法略...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="继承关系"><a href="#继承关系" class="headerlink" title="继承关系"></a>继承关系</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Inheritance</span></span><br><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">VipCustomer</span> <span class="keyword">extends</span> <span class="title">Customer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Double discount;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">VipCustomer</span><span class="params">(Double discount)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.discount = discount;</span><br><span class="line">    &#125;</span><br><span class="line">   <span class="comment">// get set方法略...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在application.properties文件中添加如下信息:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">spring.datasource.driverClassName=com.mysql.jdbc.Driver</span><br><span class="line">spring.datasource.url=jdbc:mysql:<span class="comment">//localhost:3306/jpa</span></span><br><span class="line">spring.datasource.username=root</span><br><span class="line">spring.datasource.password=root</span><br><span class="line">server.port=<span class="number">8085</span></span><br><span class="line"></span><br><span class="line"># JPA 配置</span><br><span class="line">spring.jpa.showSql=<span class="keyword">true</span></span><br><span class="line">spring.jpa.generate-ddl=<span class="keyword">true</span></span><br><span class="line">spring.jpa.hibernate.ddl-auto=create-drop</span><br></pre></td></tr></table></figure>
+<p>Jpa的配置对应的类: <code>org.springframework.boot.autoconfigure.orm.jpa.JpaProperties</code></p>
+<p>JDBC对应的配置类:<code>org.springframework.boot.autoconfigure.jdbc.JdbcProperties</code></p>
+<p>添加引导类:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringBootJpaApplication</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">( String[] args )</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        SpringApplication.run(SpringBootJpaApplication.class,args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>启动，我们可以看到在MySQL数据库中已经自动创建了表。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW TABLES;</span><br><span class="line">+<span class="comment">--------------------+</span></span><br><span class="line">| Tables_in_jpa      |</span><br><span class="line">+<span class="comment">--------------------+</span></span><br><span class="line">| books <span class="comment">-- 书表             |</span></span><br><span class="line">| credit_cards <span class="comment">--信用卡表      |</span></span><br><span class="line">| customer <span class="comment">--客户表          |</span></span><br><span class="line">| customer_books <span class="comment">--客户与书关系表    |</span></span><br><span class="line">| hibernate_sequence <span class="comment">--序列记录表|</span></span><br><span class="line">| store <span class="comment">--店铺表            |</span></span><br><span class="line">+<span class="comment">--------------------+</span></span><br><span class="line">6 rows in <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">mysql&gt; <span class="keyword">SHOW</span> <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> customer_books;</span><br><span class="line">+<span class="comment">----------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| Table          | <span class="keyword">Create</span> <span class="keyword">Table</span>                                                                                                                                                                                                                                   |</span><br><span class="line">+<span class="comment">----------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| customer_books | <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`customer_books`</span> (</span><br><span class="line">  <span class="string">`customers_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`books_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`FKnp536px7xjmjwhwvqcxj55u9x`</span> (<span class="string">`books_id`</span>),</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`FK2g0g08sdj8nkxgamgy89hvg84`</span> (<span class="string">`customers_id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=MyISAM <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 |</span><br><span class="line">+<span class="comment">----------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line"><span class="number">1</span> <span class="keyword">row</span> <span class="keyword">in</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">mysql&gt; <span class="keyword">SHOW</span> <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> credit_cards;</span><br><span class="line">+<span class="comment">--------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| Table        | <span class="keyword">Create</span> <span class="keyword">Table</span>                                                                                                                                                                                    |</span><br><span class="line">+<span class="comment">--------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| credit_cards | <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`credit_cards`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`number`</span> <span class="built_in">varchar</span>(<span class="number">128</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`registered_date`</span> datetime <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=MyISAM <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 |</span><br><span class="line">+<span class="comment">--------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line"><span class="number">1</span> <span class="keyword">row</span> <span class="keyword">in</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">mysql&gt; <span class="keyword">SHOW</span> <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="keyword">store</span>;</span><br><span class="line">+<span class="comment">-------+----------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| Table | <span class="keyword">Create</span> <span class="keyword">Table</span>                                                                                                                                 |</span><br><span class="line">+<span class="comment">-------+----------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| <span class="keyword">store</span> | <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`store`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`name`</span> <span class="built_in">varchar</span>(<span class="number">128</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=MyISAM <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 |</span><br><span class="line">+<span class="comment">-------+----------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line"><span class="number">1</span> <span class="keyword">row</span> <span class="keyword">in</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">mysql&gt; <span class="keyword">SHOW</span> <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> books;</span><br><span class="line">+<span class="comment">-------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| Table | <span class="keyword">Create</span> <span class="keyword">Table</span>                                                                                                                                                                                                           |</span><br><span class="line">+<span class="comment">-------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| books | <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`books`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`isbn`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`name`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`publish_date`</span> datetime <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=MyISAM <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 |</span><br><span class="line">+<span class="comment">-------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line"><span class="number">1</span> <span class="keyword">row</span> <span class="keyword">in</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">mysql&gt; <span class="keyword">SHOW</span> <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> customer_books;</span><br><span class="line">+<span class="comment">----------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| Table          | <span class="keyword">Create</span> <span class="keyword">Table</span>                                                                                                                                                                                                                                   |</span><br><span class="line">+<span class="comment">----------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| customer_books | <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`customer_books`</span> (</span><br><span class="line">  <span class="string">`customers_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`books_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`FKnp536px7xjmjwhwvqcxj55u9x`</span> (<span class="string">`books_id`</span>),</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`FK2g0g08sdj8nkxgamgy89hvg84`</span> (<span class="string">`customers_id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=MyISAM <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 |</span><br><span class="line">+<span class="comment">----------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line"><span class="number">1</span> <span class="keyword">row</span> <span class="keyword">in</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">mysql&gt; <span class="keyword">SHOW</span> <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> hibernate_sequence;</span><br><span class="line">+<span class="comment">--------------------+-------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| Table              | <span class="keyword">Create</span> <span class="keyword">Table</span>                                                                                                |</span><br><span class="line">+<span class="comment">--------------------+-------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| hibernate_sequence | <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`hibernate_sequence`</span> (</span><br><span class="line">  <span class="string">`next_val`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span></span><br><span class="line">) <span class="keyword">ENGINE</span>=MyISAM <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 |</span><br><span class="line">+<span class="comment">--------------------+-------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line"><span class="number">1</span> <span class="keyword">row</span> <span class="keyword">in</span> <span class="keyword">set</span></span><br></pre></td></tr></table></figure>
+<h2 id="监听演示"><a href="#监听演示" class="headerlink" title="监听演示"></a>监听演示</h2><p>通过前面的实体实例生命周期，我们来演示一下该功能来：<br>定义一个监听类：<code>CustomerListener</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomerListener</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger LOG = LoggerFactory.getLogger(CustomerListener.class);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PrePersist</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">prePersist</span><span class="params">(Object source)</span></span>&#123;</span><br><span class="line">        LOG.info(<span class="string">"@PrePersist:&#123;&#125;"</span>,source);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostPersist</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postPersist</span><span class="params">(Object source)</span></span>&#123;</span><br><span class="line">        LOG.info(<span class="string">"@PostPersist:&#123;&#125;"</span>,source);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PreRemove</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">preRemove</span><span class="params">(Object source)</span></span>&#123;</span><br><span class="line">        LOG.info(<span class="string">"@PreRemove:&#123;&#125;"</span>,source);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PreUpdate</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">preUpdate</span><span class="params">(Object source)</span></span>&#123;</span><br><span class="line">        LOG.info(<span class="string">"@PreUpdate:&#123;&#125;"</span>,source);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostUpdate</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postUpdate</span><span class="params">(Object source)</span></span>&#123;</span><br><span class="line">        LOG.info(<span class="string">"@PostUpdate:&#123;&#125;"</span>,source);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostLoad</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postLoad</span><span class="params">(Object source)</span></span>&#123;</span><br><span class="line">        LOG.info(<span class="string">"@PostLoad:&#123;&#125;"</span>,source);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Table</span>(name = <span class="string">"customer"</span>)</span><br><span class="line"><span class="meta">@EntityListeners</span>(value = &#123;CustomerListener.class&#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Customer</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>启动，通过rest接口添加数据:</p>
+<p>POST| <a href="http://localhost:8085/customers/" target="_blank" rel="noopener">http://localhost:8085/customers/</a></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="attr">"name"</span>:<span class="string">"Gre"</span>,</span><br><span class="line">	<span class="attr">"creditCard"</span>:&#123;</span><br><span class="line">		<span class="attr">"id"</span>:<span class="string">"1"</span>,</span><br><span class="line">		<span class="attr">"number"</span>:<span class="string">"xo1089821982918998918"</span>,</span><br><span class="line">		<span class="attr">"registeredDate"</span>:<span class="string">"2018-08-23"</span></span><br><span class="line">		</span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"store"</span>:&#123;</span><br><span class="line">		<span class="attr">"id"</span>:<span class="string">"1"</span>,</span><br><span class="line">		<span class="attr">"name"</span>:<span class="string">"当当图书"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"books"</span>:[</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="attr">"id"</span>:<span class="string">"1"</span>,</span><br><span class="line">		    <span class="attr">"name"</span>:<span class="string">"Java从入门到放弃"</span>,</span><br><span class="line">		    <span class="attr">"isbn"</span>:<span class="string">"1-001-09"</span>,</span><br><span class="line">		    <span class="attr">"publishDate"</span>:<span class="string">"2018-08-23"</span></span><br><span class="line">		&#125;,</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="attr">"id"</span>:<span class="string">"2"</span>,</span><br><span class="line">		    <span class="attr">"name"</span>:<span class="string">"JVM深入理解"</span>,</span><br><span class="line">		    <span class="attr">"isbn"</span>:<span class="string">"1-001-022"</span>,</span><br><span class="line">		    <span class="attr">"publishDate"</span>:<span class="string">"2018-08-23"</span></span><br><span class="line">		&#125;</span><br><span class="line">	]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@PrePersist:Customer&#123;id=0, name='Gre', creditCard=CreditCard&#123;id=1, number='xo1089821982918998918', registeredDate=Thu Aug 23 08:00:00 CST 2018, customer=null&#125;, store=Store&#123;id=1, name='当当图书', customers=null&#125;, books=[Book&#123;id=1, name='Java从入门到放弃', isbn='1-001-09', publishDate=Thu Aug 23 08:00:00 CST 2018, customers=null&#125;, Book&#123;id=2, name='JVM深入理解', isbn='1-001-022', publishDate=Thu Aug 23 08:00:00 CST 2018, customers=null&#125;]&#125;</span><br><span class="line"> </span><br><span class="line">@PostPersist:Customer&#123;id=1, name='Gre', creditCard=CreditCard&#123;id=1, number='xo1089821982918998918', registeredDate=Thu Aug 23 08:00:00 CST 2018, customer=null&#125;, store=Store&#123;id=1, name='当当图书', customers=null&#125;, books=[Book&#123;id=1, name='Java从入门到放弃', isbn='1-001-09', publishDate=Thu Aug 23 08:00:00 CST 2018, customers=null&#125;, Book&#123;id=2, name='JVM深入理解', isbn='1-001-022', publishDate=Thu Aug 23 08:00:00 CST 2018, customers=null&#125;]&#125;</span><br></pre></td></tr></table></figure>
+<p>其他方法演示类似，这里就不一一演示了。</p>
+<p>本示例代码包括Spring-Data-JPA的实体对象定义、事件监听、生命周期、常用接口、分页查询，像JPA的cache没有演示。基于这些实体对象，设计的Restfull API详见github代码：</p>
+<p>具体代码详见: <a href="https://github.com/GreZhang/microservices/tree/master/spring-boot-jpa" target="_blank" rel="noopener">Spring-Boot-JPA</a></p>
+
       
     </div>
     
@@ -568,7 +1024,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-Persistence-API"><span class="nav-number">1.</span> <span class="nav-text">Java Persistence API</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Data-JPA"><span class="nav-number">2.</span> <span class="nav-text">Spring Data JPA</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JPA与Spring-Boot整合"><span class="nav-number">3.</span> <span class="nav-text">JPA与Spring Boot整合</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-Persistence-API"><span class="nav-number">1.</span> <span class="nav-text">Java Persistence API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#百度百科"><span class="nav-number">1.1.1.</span> <span class="nav-text">百度百科</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Oracle官网介绍"><span class="nav-number">1.1.2.</span> <span class="nav-text">Oracle官网介绍</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#历史"><span class="nav-number">1.2.</span> <span class="nav-text">历史</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些概念"><span class="nav-number">1.3.</span> <span class="nav-text">一些概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实体-Entities"><span class="nav-number">1.3.1.</span> <span class="nav-text">实体(Entities)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实体类-Entity-class"><span class="nav-number">1.3.2.</span> <span class="nav-text">实体类(Entity class)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实体持久字段和属性"><span class="nav-number">1.3.3.</span> <span class="nav-text">实体持久字段和属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#持久字段和属性类型"><span class="nav-number">1.3.4.</span> <span class="nav-text">持久字段和属性类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问类型"><span class="nav-number">1.3.5.</span> <span class="nav-text">访问类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实体主键（Primary-Key）"><span class="nav-number">1.3.6.</span> <span class="nav-text">实体主键（Primary Key）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实体关系"><span class="nav-number">1.3.7.</span> <span class="nav-text">实体关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实体双向关系"><span class="nav-number">1.3.8.</span> <span class="nav-text">实体双向关系</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一对一（OneToOne）"><span class="nav-number">1.3.8.1.</span> <span class="nav-text">一对一（OneToOne）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多对一（ManyToOne）-一对多（OneToMany）"><span class="nav-number">1.3.8.2.</span> <span class="nav-text">多对一（ManyToOne）/一对多（OneToMany）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多对多（ManyToMany）"><span class="nav-number">1.3.8.3.</span> <span class="nav-text">多对多（ManyToMany）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实体单向关系"><span class="nav-number">1.3.9.</span> <span class="nav-text">实体单向关系</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一对一（OneToOne）-1"><span class="nav-number">1.3.9.1.</span> <span class="nav-text">一对一（OneToOne）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一对多（OneToMany）"><span class="nav-number">1.3.9.2.</span> <span class="nav-text">一对多（OneToMany）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实体继承（Inheritance）"><span class="nav-number">1.3.10.</span> <span class="nav-text">实体继承（Inheritance）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实体实例生命周期（Life-Cycle）"><span class="nav-number">1.3.11.</span> <span class="nav-text">实体实例生命周期（Life Cycle）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#持久化上下文使用期限（Persistence-Context-Lifetime）"><span class="nav-number">1.3.12.</span> <span class="nav-text">持久化上下文使用期限（Persistence Context Lifetime）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实体监听器和回调方法"><span class="nav-number">1.3.13.</span> <span class="nav-text">实体监听器和回调方法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Data-JPA"><span class="nav-number">2.</span> <span class="nav-text">Spring Data JPA</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Data-Repository"><span class="nav-number">2.1.</span> <span class="nav-text">Spring Data Repository</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#核心接口"><span class="nav-number">2.1.1.</span> <span class="nav-text">核心接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#激活"><span class="nav-number">2.1.2.</span> <span class="nav-text">激活</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JPA与Spring-Boot整合"><span class="nav-number">3.</span> <span class="nav-text">JPA与Spring Boot整合</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实战演练"><span class="nav-number">4.</span> <span class="nav-text">实战演练</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一对一映射"><span class="nav-number">4.1.</span> <span class="nav-text">一对一映射</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一对多映射"><span class="nav-number">4.2.</span> <span class="nav-text">一对多映射</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多对多映射"><span class="nav-number">4.3.</span> <span class="nav-text">多对多映射</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#继承关系"><span class="nav-number">4.4.</span> <span class="nav-text">继承关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#监听演示"><span class="nav-number">4.5.</span> <span class="nav-text">监听演示</span></a></li></ol></li></ol></div>
             
 
           </div>

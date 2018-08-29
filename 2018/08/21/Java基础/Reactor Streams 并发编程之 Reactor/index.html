@@ -81,18 +81,18 @@
 
 
 
-<meta name="description" content="理解 Reactive Streams 编程了解 Reactor 基本使用帮助理解 WebFlux（Spring Framework 5）">
+<meta name="description" content="理解 Reactive Streams 编程什么是Reactive StreamsReactive Streams是一个在JVM上为面向异步流处理类库而设计的一个标准和规范：  按顺序处理 一个可能无边界的元素或者数据流 异步地在组件之间传递元素 支持强制性非阻塞背压  Reactive Streams的规范包括如下两方面的内容： Reactive Streams的规范包括如下两方面的内容： AP">
 <meta name="keywords" content="Java8,高并发">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java8并发编程">
 <meta property="og:url" content="https://grezhang.github.io/2018/08/21/Java基础/Reactor Streams 并发编程之 Reactor/index.html">
 <meta property="og:site_name" content="Gre的博客">
-<meta property="og:description" content="理解 Reactive Streams 编程了解 Reactor 基本使用帮助理解 WebFlux（Spring Framework 5）">
+<meta property="og:description" content="理解 Reactive Streams 编程什么是Reactive StreamsReactive Streams是一个在JVM上为面向异步流处理类库而设计的一个标准和规范：  按顺序处理 一个可能无边界的元素或者数据流 异步地在组件之间传递元素 支持强制性非阻塞背压  Reactive Streams的规范包括如下两方面的内容： Reactive Streams的规范包括如下两方面的内容： AP">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-08-20T12:25:59.057Z">
+<meta property="og:updated_time" content="2018-08-21T13:25:51.107Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java8并发编程">
-<meta name="twitter:description" content="理解 Reactive Streams 编程了解 Reactor 基本使用帮助理解 WebFlux（Spring Framework 5）">
+<meta name="twitter:description" content="理解 Reactive Streams 编程什么是Reactive StreamsReactive Streams是一个在JVM上为面向异步流处理类库而设计的一个标准和规范：  按顺序处理 一个可能无边界的元素或者数据流 异步地在组件之间传递元素 支持强制性非阻塞背压  Reactive Streams的规范包括如下两方面的内容： Reactive Streams的规范包括如下两方面的内容： AP">
 
 
 
@@ -381,7 +381,38 @@
       
 
       
-        <h1 id="理解-Reactive-Streams-编程"><a href="#理解-Reactive-Streams-编程" class="headerlink" title="理解 Reactive Streams 编程"></a>理解 Reactive Streams 编程</h1><h1 id="了解-Reactor-基本使用"><a href="#了解-Reactor-基本使用" class="headerlink" title="了解 Reactor 基本使用"></a>了解 Reactor 基本使用</h1><h1 id="帮助理解-WebFlux（Spring-Framework-5）"><a href="#帮助理解-WebFlux（Spring-Framework-5）" class="headerlink" title="帮助理解 WebFlux（Spring Framework 5）"></a>帮助理解 WebFlux（Spring Framework 5）</h1>
+        <h1 id="理解-Reactive-Streams-编程"><a href="#理解-Reactive-Streams-编程" class="headerlink" title="理解 Reactive Streams 编程"></a>理解 Reactive Streams 编程</h1><h2 id="什么是Reactive-Streams"><a href="#什么是Reactive-Streams" class="headerlink" title="什么是Reactive Streams"></a>什么是Reactive Streams</h2><p>Reactive Streams是一个在JVM上为面向异步流处理类库而设计的一个标准和规范：</p>
+<ul>
+<li>按顺序处理</li>
+<li>一个可能无边界的元素或者数据流</li>
+<li>异步地在组件之间传递元素</li>
+<li>支持强制性非阻塞背压</li>
+</ul>
+<p>Reactive Streams的规范包括如下两方面的内容：</p>
+<p>Reactive Streams的规范包括如下两方面的内容：</p>
+<p><strong>API 规范</strong>指定了实现这个规范的类型，以及各种不同的流处理类库之间可操作性。</p>
+<p><strong>TCK(THe Technology Compatibility Kit) 兼容性测试工具</strong>一个用来测试这个规范的标准测试套件。</p>
+<p>Reactive Streams的各种实现类库在实现这个规范时候，允许添加自己的特性，只要能通过TCK的测试。</p>
+<h3 id="API组件"><a href="#API组件" class="headerlink" title="API组件"></a>API组件</h3><p>API组件定义了如下的组件，在Reactive Streams的实现上必须要提供这些组件。</p>
+<ol>
+<li>Publish 发布者</li>
+<li>Subscriber 订阅者</li>
+<li>Subscription 订阅</li>
+<li>Processor 处理器</li>
+</ol>
+<p>一个 <em>Publish</em> 发布者提供一个可能无边界的连续元素组合，当收到订阅需求时候把它推送给订阅者。</p>
+<p>在调用 <code>Publish.subscribe(Subsciber)</code> 后，订阅者 <code>Subscriber</code> 的方法被调用的顺序需要遵守如下约定：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">onSubscribe onNext* (onError | onComplete)?</span><br></pre></td></tr></table></figure>
+<p>这个意味着 <code>onSubscribe</code> 方法总是会被调用到，紧跟着0~n次的<code>onNext</code> 的信令（是由<code>Subscriber</code>请求的)。 如果有错误的话，那么跟随着一个<code>onError</code>信号。如果没有更多的数据到达的时候而且只要<code>Subscription</code>没有被取消，那么收到一个<code>onCompelte</code>信令</p>
+<blockquote>
+<p>参考资料</p>
+<p><a href="http://www.reactive-streams.org/" target="_blank" rel="noopener">http://www.reactive-streams.org/</a></p>
+<p>规范翻译 <a href="https://github.com/yelf2000/rxjava/wiki/Reative-Streams-%E8%A7%84%E8%8C%83" target="_blank" rel="noopener">https://github.com/yelf2000/rxjava/wiki/Reative-Streams-%E8%A7%84%E8%8C%83</a></p>
+<p>各个实现的对比 <a href="https://blog.piasy.com/AdvancedRxJava/2017/03/19/comparison-of-reactive-streams-part-1/" target="_blank" rel="noopener">https://blog.piasy.com/AdvancedRxJava/2017/03/19/comparison-of-reactive-streams-part-1/</a></p>
+<p>vert.x <a href="https://vertxchina.github.io/vertx-translation-chinese/reactive/Reactivestreams.html" target="_blank" rel="noopener">https://vertxchina.github.io/vertx-translation-chinese/reactive/Reactivestreams.html</a></p>
+<p><a href="https://projectreactor.io/docs/core/release/reference/" target="_blank" rel="noopener">https://projectreactor.io/docs/core/release/reference/</a></p>
+</blockquote>
+<h1 id="了解-Reactor-基本使用"><a href="#了解-Reactor-基本使用" class="headerlink" title="了解 Reactor 基本使用"></a>了解 Reactor 基本使用</h1><h1 id="帮助理解-WebFlux（Spring-Framework-5）"><a href="#帮助理解-WebFlux（Spring-Framework-5）" class="headerlink" title="帮助理解 WebFlux（Spring Framework 5）"></a>帮助理解 WebFlux（Spring Framework 5）</h1>
       
     </div>
     
@@ -568,7 +599,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#理解-Reactive-Streams-编程"><span class="nav-number">1.</span> <span class="nav-text">理解 Reactive Streams 编程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#了解-Reactor-基本使用"><span class="nav-number">2.</span> <span class="nav-text">了解 Reactor 基本使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#帮助理解-WebFlux（Spring-Framework-5）"><span class="nav-number">3.</span> <span class="nav-text">帮助理解 WebFlux（Spring Framework 5）</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#理解-Reactive-Streams-编程"><span class="nav-number">1.</span> <span class="nav-text">理解 Reactive Streams 编程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是Reactive-Streams"><span class="nav-number">1.1.</span> <span class="nav-text">什么是Reactive Streams</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#API组件"><span class="nav-number">1.1.1.</span> <span class="nav-text">API组件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#了解-Reactor-基本使用"><span class="nav-number">2.</span> <span class="nav-text">了解 Reactor 基本使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#帮助理解-WebFlux（Spring-Framework-5）"><span class="nav-number">3.</span> <span class="nav-text">帮助理解 WebFlux（Spring Framework 5）</span></a></li></ol></div>
             
 
           </div>
