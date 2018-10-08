@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Redis," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Gre的博客" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="过期时间设置在Redis中提供了expire命令来设置一个键的过期时间，到期以后Redis会自动删除它。这个在我们实际使用过程中用得非常多。 基本操作EXPIRE命令的使用方法为 1EXPIRE key seconds 其中seconds 参数表示键的过期时间，单位为秒。 EXPIRE 返回值为1表示设置成功，0表示设置失败或者键不存在 如果向知道一个键还有多久时间被删除，可以使用TTL命令 1T">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis的内部原理">
+<meta property="og:url" content="https://grezhang.github.io/2017/10/04/redis/02Redi的内部原理/index.html">
+<meta property="og:site_name" content="Gre的博客">
+<meta property="og:description" content="过期时间设置在Redis中提供了expire命令来设置一个键的过期时间，到期以后Redis会自动删除它。这个在我们实际使用过程中用得非常多。 基本操作EXPIRE命令的使用方法为 1EXPIRE key seconds 其中seconds 参数表示键的过期时间，单位为秒。 EXPIRE 返回值为1表示设置成功，0表示设置失败或者键不存在 如果向知道一个键还有多久时间被删除，可以使用TTL命令 1T">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://grezhang.github.io/2017/10/04/images/redis/02Redis发布订阅结构图.jpg">
+<meta property="og:updated_time" content="2018-10-05T07:16:31.745Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis的内部原理">
+<meta name="twitter:description" content="过期时间设置在Redis中提供了expire命令来设置一个键的过期时间，到期以后Redis会自动删除它。这个在我们实际使用过程中用得非常多。 基本操作EXPIRE命令的使用方法为 1EXPIRE key seconds 其中seconds 参数表示键的过期时间，单位为秒。 EXPIRE 返回值为1表示设置成功，0表示设置失败或者键不存在 如果向知道一个键还有多久时间被删除，可以使用TTL命令 1T">
+<meta name="twitter:image" content="https://grezhang.github.io/2017/10/04/images/redis/02Redis发布订阅结构图.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '123456',
+      author: 'Tenken'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://grezhang.github.io/2017/10/04/redis/02Redi的内部原理/"/>
+
+
+
+
+
+  <title>Redis的内部原理 | Gre的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Gre的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">风骚的程序员</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://grezhang.github.io/2017/10/04/redis/02Redi的内部原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gre World">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Gre的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis的内部原理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-04T22:03:16+08:00">
+                2017-10-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+			
+				&nbsp; | &nbsp;
+				<span id="/2017/10/04/redis/02Redi的内部原理/"class="leancloud_visitors" data-flag-title="Redis的内部原理">
+				&nbsp;阅读次数
+				</span>
+			
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Redis基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017/10/04/redis/02Redi的内部原理/" class="leancloud_visitors" data-flag-title="Redis的内部原理">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="过期时间设置"><a href="#过期时间设置" class="headerlink" title="过期时间设置"></a>过期时间设置</h1><p>在Redis中提供了expire命令来设置一个键的过期时间，到期以后Redis会自动删除它。这个在我们实际使用过程中用得非常多。</p>
+<h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><p>EXPIRE命令的使用方法为</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPIRE key seconds</span><br></pre></td></tr></table></figure>
+<p>其中seconds 参数表示键的过期时间，单位为秒。</p>
+<p>EXPIRE 返回值为1表示设置成功，0表示设置失败或者键不存在</p>
+<p>如果向知道一个键还有多久时间被删除，可以使用TTL命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TTL key</span><br></pre></td></tr></table></figure>
+<p>当键不存在时，TTL命令会返回-2</p>
+<p>而对于没有给指定键设置过期时间的，通过TTL命令会返回-1</p>
+<p>如果向取消键的过期时间设置（使该键恢复成为永久的），可以使用PERSIST命令，如果该命令执行成功或者成功清除了过期时间，则返回1 。 否则返回0（键不存在或者本身就是永久的） </p>
+<p>EXPIRE命令的seconds命令必须是整数，所以最小单位是1秒，如果向要更精确的控制键的过期时间可以使用PEXPIRE命令，当然实际过程中用秒的单位就够了。 PEXPIRE命令的单位是毫秒。即PEXPIRE key 1000与EXPIRE key 1相等；对应的PTTL以毫秒单位获取键的剩余有效时间</p>
+<p>还有一个针对字符串独有的过期时间设置方式</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setex(String key,int seconds,String value)</span><br></pre></td></tr></table></figure>
+<h2 id="过期删除的原理"><a href="#过期删除的原理" class="headerlink" title="过期删除的原理"></a>过期删除的原理</h2><p>Redis 中的主键失效是如何实现的，即失效的主键是如何删除的？实际上，Redis 删除失效主键的方法主要有两种：</p>
+<h3 id="消极方法（passive-way）"><a href="#消极方法（passive-way）" class="headerlink" title="消极方法（passive way）"></a>消极方法（passive way）</h3><p>在主键被访问时如果发现它已经失效，那么就删除它</p>
+<h3 id="积极方法（active-way）"><a href="#积极方法（active-way）" class="headerlink" title="积极方法（active way）"></a>积极方法（active way）</h3><p>周期性地从设置了失效时间的主键中选择一部分失效的主键删除 </p>
+<p>对于那些从未被查询的key，即便它们已经过期，被动方式也无法清除。因此Redis会周期性地随机测试一些key，已过期的key将会被删掉。Redis每秒会进行10次操作，具体的流程： </p>
+<ol>
+<li>随机测试 20 个带有timeout信息的key；</li>
+<li>删除其中已经过期的key；</li>
+<li>如果超过25%的key被删除，则重复执行步骤1；</li>
+</ol>
+<p>这是一个简单的概率算法（trivial probabilistic algorithm），基于假设我们随机抽取的key代表了全部的key空间。</p>
+<h1 id="Redis发布订阅"><a href="#Redis发布订阅" class="headerlink" title="Redis发布订阅"></a>Redis发布订阅</h1><p>Redis提供了发布订阅功能，可以用于消息的传输，Redis提供了一组命令可以让开发者实现“发布/订阅”模式 (publish/subscribe) . 该模式同样可以实现进程间的消息传递，它的实现原理是</p>
+<p>发布/订阅模式包含两种角色，分别是发布者和订阅者。订阅者可以订阅一个或多个频道，而发布者可以向指定的频道发送消息，所有订阅此频道的订阅者都会收到该消息</p>
+<p>发布者发布消息的命令是PUBLISH， 用法是</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUBLISH channel message</span><br></pre></td></tr></table></figure>
+<p>比如向channel.1发一条消息:hello</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUBLISH channel.1 “hello”</span><br></pre></td></tr></table></figure>
+<p>这样就实现了消息的发送，该命令的返回值表示接收到这条消息的订阅者数量。因为在执行这条命令的时候还没有订阅者订阅该频道，所以返回为0. 另外值得注意的是消息发送出去不会持久化，如果发送之前没有订阅者，那么后续再有订阅者订阅该频道，之前的消息就收不到了</p>
+<p>订阅者订阅消息的命令是</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SUBSCRIBE channel [channel …]</span><br></pre></td></tr></table></figure>
+<p>该命令同时可以订阅多个频道，比如订阅channel.1的频道。 SUBSCRIBE channel.1</p>
+<p>执行SUBSCRIBE命令后客户端会进入订阅状态</p>
+<h2 id="结构图"><a href="#结构图" class="headerlink" title="结构图"></a>结构图</h2><p>channel分两类，一个是普通channel、另一个是pattern channel（规则匹配）， producer1发布了一条消息【publish abc hello】,redis server发给abc这个普通channel上的所有订阅者，同时abc也匹配上了pattern channel的名字，所以这条消息也会同时发送给pattern channel *bc上的所有订阅者。</p>
+<p><img src="../../images/redis/02Redis发布订阅结构图.jpg" alt="02Redis发布订阅结构图"></p>
+<h1 id="Redis持久化机制"><a href="#Redis持久化机制" class="headerlink" title="Redis持久化机制"></a>Redis持久化机制</h1><p>Redis支持两种方式的持久化，一种是RDB方式、另一种是AOF（append-only-file）方式。前者会根据指定的规则“定时”将内存中的数据存储在硬盘上，而后者在每次执行命令后将命令本身记录下来。两种持久化方式可以单独使用其中一种，也可以将这两种方式结合使用”</p>
+<h2 id="RDB持久化"><a href="#RDB持久化" class="headerlink" title="RDB持久化"></a>RDB持久化</h2><p>当符合一定条件时，Redis会单独创建（fork）一个子进程来进行持久化，会先将数据写入到一个临时文件中，等到持久化过程都结束了，再用这个临时文件替换上次持久化好的文件。整个过程中，主进程是不进行任何IO操作的，这就确保了极高的性能。如果需要进行大规模数据的恢复，且对于数据恢复的完整性不是非常敏感，那RDB方式要比AOF方式更加的高效。RDB的缺点是最后一次持久化后的数据可能丢失</p>
+<p>–fork的作用是复制一个与当前进程一样的进程。新进程的所有数据（变量、环境变量、程序计数器等）数值都和原进程一致，但是是一个全新的进程，并作为原进程的子进程</p>
+<h3 id="快照的实现原理"><a href="#快照的实现原理" class="headerlink" title="快照的实现原理"></a>快照的实现原理</h3><ul>
+<li>Redis使用fork函数复制一份当前进程的副本（子进程）</li>
+<li>父进程继续接收客户端发来的命令，而子进程中开始将内存中的数据写入到磁盘的临时文件</li>
+<li>当子进程写入完所有的数据后会用该临时文件替换旧的RDB文件，至此一次快照操作完成</li>
+</ul>
+<p>注意：Redis在进行快照的过程中，不会修改RDB文件，只有快照结束后才会将旧的文件替换为新的，也就是说任何时候RDB文件都是完整的。这就使得我们可以通过定时备份RDB文件来实现Redis数据库的备份，RDB文件是经过压缩的二进制文件，占用的空间会小于内存中的数据，更加有利于传输。</p>
+<h3 id="触发快照的时机"><a href="#触发快照的时机" class="headerlink" title="触发快照的时机"></a>触发快照的时机</h3><p>Redis会在以下几种情况下对数据进行快照</p>
+<ol>
+<li>根据配置规则进行自动快照</li>
+</ol>
+<ol start="2">
+<li>用户执行SAVE或者GBSAVE命令 </li>
+</ol>
+<ol start="3">
+<li>执行FLUSHALL命令</li>
+</ol>
+<ol start="4">
+<li>执行复制(replication)时</li>
+</ol>
+<h4 id="根据配置规则进行自动快照"><a href="#根据配置规则进行自动快照" class="headerlink" title="根据配置规则进行自动快照"></a>根据配置规则进行自动快照</h4><p>Redis允许用户自定义快照条件，当符合快照条件时，Redis会自动执行快照操作。快照的条件可以由用户在配置文件中配置。配置格式如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">save &lt;seconds&gt; &lt;changes&gt;</span><br></pre></td></tr></table></figure>
+<p>第一个参数是时间窗口，第二个是键的个数，也就是说，在第一个时间参数配置范围内被更改的键的个数大于后面的changes时，即符合快照条件。redis默认配置了三个规则</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">save 900 1  当在900秒内被更改的key的数量大于1的时候，就执行快照</span><br><span class="line">save 300 10 </span><br><span class="line">save 60 10000</span><br></pre></td></tr></table></figure>
+<p>每条快照规则占一行，每条规则之间是“或”的关系。 在900秒（15分）内有一个以上的键被更改则进行快照。</p>
+<h4 id="用户执行SAVE或BGSAVE命令"><a href="#用户执行SAVE或BGSAVE命令" class="headerlink" title="用户执行SAVE或BGSAVE命令"></a>用户执行SAVE或BGSAVE命令</h4><p>除了让Redis自动进行快照以外，当我们对服务进行重启或者服务器迁移我们需要人工去干预备份。redis提供了两条命令来完成这个任务</p>
+<ol>
+<li>save命令</li>
+</ol>
+<p>当执行save命令时，Redis同步做快照操作，在快照执行过程中会阻塞所有来自客户端的请求。当redis内存中的数据较多时，通过该命令将导致Redis较长时间的不响应。所以不建议在生产环境上使用这个命令，而是推荐使用bgsave命令</p>
+<ol start="2">
+<li>bgsave命令</li>
+</ol>
+<p>bgsave命令可以在后台异步地进行快照操作，快照的同时服务器还可以继续响应来自客户端的请求。执行BGSAVE后，Redis会立即返回ok表示开始执行快照操作。</p>
+<p>通过LASTSAVE命令可以获取最近一次成功执行快照的时间； （自动快照采用的是异步快照操作）</p>
+<h4 id="执行FLUSHALL命令"><a href="#执行FLUSHALL命令" class="headerlink" title="执行FLUSHALL命令"></a>执行FLUSHALL命令</h4><p>该命令在前面讲过，会清除redis在内存中的所有数据。执行该命令后，只要redis中配置的快照规则不为空，也就是save 的规则存在。redis就会执行一次快照操作。不管规则是什么样的都会执行。如果没有定义快照规则，就不会执行快照操作</p>
+<h4 id="执行复制时"><a href="#执行复制时" class="headerlink" title="执行复制时"></a>执行复制时</h4><p>该操作主要是在主从模式下，redis会在复制初始化时进行自动快照。这个会在后面讲到；</p>
+<p>这里只需要了解当执行复制操作时，及时没有定义自动快照规则，并且没有手动执行过快照操作，它仍然会生成RDB快照文件</p>
+<h2 id="AOF持久化机制"><a href="#AOF持久化机制" class="headerlink" title="AOF持久化机制"></a>AOF持久化机制</h2><p>当使用Redis存储非临时数据时，一般需要打开AOF持久化来降低进程终止导致的数据丢失。AOF可以将Redis执行的每一条写命令追加到硬盘文件中，这一过程会降低Redis的性能，但大部分情况下这个影响是能够接受的，另外使用较快的硬盘可以提高AOF的性能。</p>
+<h3 id="开启AOF"><a href="#开启AOF" class="headerlink" title="开启AOF"></a>开启AOF</h3><p>默认情况下Redis没有开启AOF（append only file）方式的持久化，可以通过appendonly参数启用，在redis.conf中找到 </p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes</span><br></pre></td></tr></table></figure>
+<p>开启AOF持久化后每执行一条会更改Redis中的数据的命令后，Redis就会将该命令写入硬盘中的AOF文件。AOF文件的保存位置和RDB文件的位置相同，都是通过dir参数设置的，默认的文件名是apendonly.aof. 可以在redis.conf中的属性 appendfilename appendonlyh.aof修改</p>
+<h3 id="AOF的实现"><a href="#AOF的实现" class="headerlink" title="AOF的实现"></a>AOF的实现</h3><p>AOF文件以纯文本的形式记录Redis执行的写命令例如开启AOF持久化的情况下执行如下4条命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">set foo 1</span><br><span class="line">set foo 2</span><br><span class="line">set foo 3</span><br><span class="line">get foo</span><br></pre></td></tr></table></figure>
+<p>redis 会将前3条命令写入AOF文件中，通过vim的方式可以看到aof文件中的内容</p>
+<blockquote>
+<p>我们会发现AOF文件的内容正是Redis发送的原始通信协议的内容，从内容中我们发现Redis只记录了3条命令。然后这时有一个问题是前面2条命令其实是冗余的，因为这两条的执行结果都会被第三条命令覆盖。随着执行的命令越来越多，AOF文件的大小也会越来越大，其实内存中实际的数据可能没有多少，那这样就会造成磁盘空间以及redis数据还原的过程比较长的问题。因此我们希望Redis可以自动优化</p>
+<p>AOF文件，就上面这个例子来说，前面两条是可以被删除的。 而实际上Redis也考虑到了，可以配置一个条件，每当达到一定条件时Redis就会自动重写AOF文件，这个条件的配置问 auto-aof-rewrite-percentage 100 auto-aof-rewrite-min-size 64mb</p>
+</blockquote>
+<p>auto-aof-rewrite-percentage 表示的是当目前的AOF文件大小超过上一次重写时的AOF文件大小的百分之多少时会再次进行重写，如果之前没有重写过，则以启动时AOF文件大小为依据</p>
+<p>auto-aof-rewrite-min-size 表示限制了允许重写的最小AOF文件大小，通常在AOF文件很小的情况下即使其中有很多冗余的命令我们也并不太关心。</p>
+<p>另外，还可以通过BGREWRITEAOF 命令手动执行AOF，执行完以后冗余的命令已经被删除了</p>
+<p>在启动时，Redis会逐个执行AOF文件中的命令来将硬盘中的数据载入到内存中，载入的速度相对于RDB会慢一些</p>
+<h3 id="AOF的重写原理"><a href="#AOF的重写原理" class="headerlink" title="AOF的重写原理"></a>AOF的重写原理</h3><p>Redis 可以在 AOF 文件体积变得过大时，自动地在后台对 AOF 进行重写： 重写后的新 AOF 文件包含了恢复当前数据集所需的最小命令集合。</p>
+<p>重写的流程是这样，主进程会fork一个子进程出来进行AOF重写，这个重写过程并不是基于原有的aof文件来做的，而是有点类似于快照的方式，全量遍历内存中的数据，然后逐个序列到aof文件中。在fork子进程这个过程中，服务端仍然可以对外提供服务，那这个时候重写的aof文件的数据和redis内存数据不一致了怎么办？不用担心，这个过程中，主进程的数据更新操作，会缓存到aof_rewrite_buf中，也就是单独开辟一块缓存来存储重写期间收到的命令，当子进程重写完以后再把缓存中的数据追加到新的aof文件。</p>
+<p>当所有的数据全部追加到新的aof文件中后，把新的aof文件重命名为，此后所有的操作都会被写入新的aof文件。如果在rewrite过程中出现故障，不会影响原来aof文件的正常工作，只有当rewrite完成后才会切换文件。因此这个rewrite过程是比较可靠的</p>
+<h1 id="Redis内存回收策略"><a href="#Redis内存回收策略" class="headerlink" title="Redis内存回收策略"></a>Redis内存回收策略</h1><p>Redis中提供了多种内存回收策略，当内存容量不足时，为了保证程序的运行，这时就不得不淘汰内存中的一些对象，释放这些对象占用的空间，那么选择淘汰哪些对象呢？</p>
+<p>其中，默认的策略为noeviction策略，当内存使用达到阈值的时候，所有引起申请内存的命令会报错</p>
+<p>allkeys-lru：从数据集（server.db[i].dict）中挑选最近最少使用的数据淘汰</p>
+<p>allkeys-random：随机移除某个key。</p>
+<p>volatile-random：从已设置过期时间的数据集（server.db[i].expires）中任意选择数据淘汰。</p>
+<p>volatile-lru：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰。</p>
+<p>volatile-ttl：从已设置过期时间的数据集（server.db[i].expires）中挑选将要过期的数据淘汰</p>
+<p>实际上Redis实现的LRU并不是可靠的LRU，也就是名义上我们使用LRU算法淘汰内存数据，但是实际上被淘汰的键并不一定是真正的最少使用的数据，这里涉及到一个权衡的问题，如果需要在所有的数据中搜索最符合条件的数据，那么一定会增加系统的开销，Redis是单线程的，所以耗时的操作会谨慎一些。为了在一定成本内实现相对的LRU，早期的Redis版本是基于采样的LRU，也就是放弃了从所有数据中搜索解改为采样空间搜索最优解。Redis3.0版本之后，Redis作者对于基于采样的LRU进行了一些优化，目的是在一定的成本内让结果更靠近真实的LRU。</p>
+<h1 id="Redis是单进程单线程？性能为什么这么快"><a href="#Redis是单进程单线程？性能为什么这么快" class="headerlink" title="Redis是单进程单线程？性能为什么这么快"></a>Redis是单进程单线程？性能为什么这么快</h1><p>Redis采用了一种非常简单的做法，单线程来处理来自所有客户端的并发请求，Redis把任务封闭在一个线程中从而避免了线程安全问题；redis为什么是单线程？</p>
+<p>官方的解释是，CPU并不是Redis的瓶颈所在，Redis的瓶颈主要在机器的内存和网络的带宽。那么Redis能不能处理高并发请求呢？当然是可以的，至于怎么实现的，我们来具体了解一下。 【注意并发不等于并行，并发性I/O流，意味着能够让一个计算单元来处理来自多个客户端的流请求。并行性，意味着服务器能够同时执行几个事情，具有多个计算单元】</p>
+<h2 id="多路复用"><a href="#多路复用" class="headerlink" title="多路复用"></a>多路复用</h2><p>Redis 是跑在单线程中的，所有的操作都是按照顺序线性执行的，但是由于读写操作等待用户输入或输出都是阻塞的，所以 I/O 操作在一般情况下往往不能直接返回，这会导致某一文件的 I/O 阻塞导致整个进程无法对其它客户提供服务，而 I/O 多路复用就是为了解决这个问题而出现的。</p>
+<p>了解多路复用之前，先简单了解下几种I/O模型</p>
+<p>（1）同步阻塞IO（Blocking IO）：即传统的IO模型。</p>
+<p>（2）同步非阻塞IO（Non-blocking IO）：默认创建的socket都是阻塞的，非阻塞IO要求socket被设置为</p>
+<p>NONBLOCK。</p>
+<p>（3）IO多路复用（IO Multiplexing）：即经典的Reactor设计模式，也称为异步阻塞IO，Java中的Selector和Linux中的epoll都是这种模型。</p>
+<p>（4）异步IO（Asynchronous IO）：即经典的Proactor设计模式，也称为异步非阻塞IO。</p>
+<p>同步和异步、阻塞和非阻塞，到底是什么意思，感觉原理都差不多，我来简单解释一下</p>
+<p>同步和异步，指的是用户线程和内核的交互方式</p>
+<p>阻塞和非阻塞，指用户线程调用内核IO操作的方式是阻塞还是非阻塞</p>
+<p>就像在Java中使用多线程做异步处理的概念，通过多线程去执行一个流程，主线程可以不用等待。而阻塞和非阻塞我们可以理解为假如在同步流程或者异步流程中做IO操作，如果缓冲区数据还没准备好，IO的这个过程会阻塞，这个在之前讲TCP协议的时候有讲过.</p>
+<h1 id="Redis使用Lua脚本"><a href="#Redis使用Lua脚本" class="headerlink" title="Redis使用Lua脚本"></a>Redis使用Lua脚本</h1><h2 id="原子性问题"><a href="#原子性问题" class="headerlink" title="原子性问题"></a>原子性问题</h2><h2 id="效率问题"><a href="#效率问题" class="headerlink" title="效率问题"></a>效率问题</h2><h2 id="lua"><a href="#lua" class="headerlink" title="lua"></a>lua</h2><h2 id="redis-与lua"><a href="#redis-与lua" class="headerlink" title="redis 与lua"></a>redis 与lua</h2><h3 id="EVAL命令的格式"><a href="#EVAL命令的格式" class="headerlink" title="EVAL命令的格式"></a>EVAL命令的格式</h3><h3 id="EVALSHA命令"><a href="#EVALSHA命令" class="headerlink" title="EVALSHA命令"></a>EVALSHA命令</h3><h2 id="综合案例"><a href="#综合案例" class="headerlink" title="综合案例"></a>综合案例</h2>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/03/redis/01Redis基础数据结构/" rel="next" title="Redis基础数据结构">
+                <i class="fa fa-chevron-left"></i> Redis基础数据结构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/05/redis/03Redi分布式原理/" rel="prev" title="Redi分布式原理">
+                Redi分布式原理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="Gre World" />
+            
+              <p class="site-author-name" itemprop="name">Gre World</p>
+              <p class="site-description motion-element" itemprop="description">原来我的代码竟然如此风骚</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">41</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#过期时间设置"><span class="nav-number">1.</span> <span class="nav-text">过期时间设置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本操作"><span class="nav-number">1.1.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#过期删除的原理"><span class="nav-number">1.2.</span> <span class="nav-text">过期删除的原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#消极方法（passive-way）"><span class="nav-number">1.2.1.</span> <span class="nav-text">消极方法（passive way）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#积极方法（active-way）"><span class="nav-number">1.2.2.</span> <span class="nav-text">积极方法（active way）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis发布订阅"><span class="nav-number">2.</span> <span class="nav-text">Redis发布订阅</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#结构图"><span class="nav-number">2.1.</span> <span class="nav-text">结构图</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis持久化机制"><span class="nav-number">3.</span> <span class="nav-text">Redis持久化机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RDB持久化"><span class="nav-number">3.1.</span> <span class="nav-text">RDB持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#快照的实现原理"><span class="nav-number">3.1.1.</span> <span class="nav-text">快照的实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#触发快照的时机"><span class="nav-number">3.1.2.</span> <span class="nav-text">触发快照的时机</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#根据配置规则进行自动快照"><span class="nav-number">3.1.2.1.</span> <span class="nav-text">根据配置规则进行自动快照</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#用户执行SAVE或BGSAVE命令"><span class="nav-number">3.1.2.2.</span> <span class="nav-text">用户执行SAVE或BGSAVE命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#执行FLUSHALL命令"><span class="nav-number">3.1.2.3.</span> <span class="nav-text">执行FLUSHALL命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#执行复制时"><span class="nav-number">3.1.2.4.</span> <span class="nav-text">执行复制时</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOF持久化机制"><span class="nav-number">3.2.</span> <span class="nav-text">AOF持久化机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#开启AOF"><span class="nav-number">3.2.1.</span> <span class="nav-text">开启AOF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOF的实现"><span class="nav-number">3.2.2.</span> <span class="nav-text">AOF的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOF的重写原理"><span class="nav-number">3.2.3.</span> <span class="nav-text">AOF的重写原理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis内存回收策略"><span class="nav-number">4.</span> <span class="nav-text">Redis内存回收策略</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis是单进程单线程？性能为什么这么快"><span class="nav-number">5.</span> <span class="nav-text">Redis是单进程单线程？性能为什么这么快</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#多路复用"><span class="nav-number">5.1.</span> <span class="nav-text">多路复用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis使用Lua脚本"><span class="nav-number">6.</span> <span class="nav-text">Redis使用Lua脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#原子性问题"><span class="nav-number">6.1.</span> <span class="nav-text">原子性问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#效率问题"><span class="nav-number">6.2.</span> <span class="nav-text">效率问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lua"><span class="nav-number">6.3.</span> <span class="nav-text">lua</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#redis-与lua"><span class="nav-number">6.4.</span> <span class="nav-text">redis 与lua</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#EVAL命令的格式"><span class="nav-number">6.4.1.</span> <span class="nav-text">EVAL命令的格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EVALSHA命令"><span class="nav-number">6.4.2.</span> <span class="nav-text">EVALSHA命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#综合案例"><span class="nav-number">6.5.</span> <span class="nav-text">综合案例</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gre World</span>
+
+  
+</div>
+<span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+</span>
+<span id="busuanzi_container_site_uv">
+  本站访客数<span id="busuanzi_value_site_uv"></span>人次
+</span>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+  
+  <!-- custom analytics part create by xiamo -->
+<script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+<script>AV.initialize("9mpWMYP4Yg1L73KyJMTLtozv-gzGzoHsz", "BoybBq32rKIn7hzV5pLuPcls");</script>
+<script>
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+	$(".leancloud_visitors").each(function() {
+		var url = $(this).attr("id").trim();
+		query.equalTo("url", url);
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {
+					var content = '0 ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+					return;
+				}
+				for (var i = 0; i < results.length; i++) {
+					var object = results[i];
+					var content = object.get('time') + ' ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+				}
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+	});
+}
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content =  counter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else if ($('.post-title-link').length > 1) {
+		showTime(Counter);
+	}
+}); 
+</script>
+  
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("9mpWMYP4Yg1L73KyJMTLtozv-gzGzoHsz", "BoybBq32rKIn7hzV5pLuPcls");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
